@@ -37,7 +37,7 @@
         .homework-links li {
             margin-left: 20px;
             font-size: 0.9em;
-            list-style-type: disc; 
+            list-style-type: disc;
             color: #555;
         }
         a {
@@ -47,6 +47,22 @@
         }
         a:hover {
             text-decoration: underline;
+        }
+        .hw-table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+        .hw-table th {
+            text-align: left;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+        }
+        .hw-table td {
+            vertical-align: top;
+            padding: 10px;
+            border: 1px solid #ddd;
         }
     </style>
 <script>
@@ -79,17 +95,57 @@
         <hr>
 
         <h2>Homework Assignments</h2>
-        
-        <ul>
-            <li>
-                <strong>Assignment 2</strong>
-                <ul class="homework-links">
-                    <li><a href="perlcode/perl-hello-html-world.pl">Perl Hello</a></li>
-                    <li><a href="perlcode/perl-hello-json-world.pl">Perl Hello (JSON)</a></li>
-                    <li><a href="assets/reference_image.png">Example 3</a></li>
-                </ul>
-            </li>
 
+        <ul>
+            <li style="margin-top: 30px;">
+                <strong>Assignment 2</strong>
+
+                <table class="hw-table">
+                    <tr>
+                        <th>Perl</th>
+                        <th>PHP</th>
+                        <th>Python</th>
+                        <th>NodeJS</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <ul class="homework-links">
+                                <li><a href="perlcode/perl-hello-html-world.pl">Hello HTML</a></li>
+                                <li><a href="perlcode/perl-hello-json-world.pl">Hello JSON</a></li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul class="homework-links">
+                                <li><a href="phpcode/hello-html-php.php">Hello HTML</a></li>
+                                <li><a href="phpcode/hello-json-php.php">Hello JSON</a></li>
+                                <li><a href="phpcode/environment-php.php">Environment</a></li>
+                                <li><a href="phpcode/echo-php.php">Echo</a></li>
+                                <li><a href="phpcode/state-php.php">State</a></li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul class="homework-links">
+                                <li><a href="pythoncode/hello-html-python.py">Hello HTML</a></li>
+                                <li><a href="pythoncode/hello-json-python.py">Hello JSON</a></li>
+                                <li><a href="pythoncode/environment-python.py">Environment</a></li>
+                                <li><a href="pythoncode/echo-python.py">Echo</a></li>
+                                <li><a href="pythoncode/state-python.py">State</a></li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul class="homework-links">
+                                <li><a href="node/hello-html-node">Hello HTML</a></li>
+                                <li><a href="node/hello-json-node">Hello JSON</a></li>
+                                <li><a href="node/environment-node">Environment</a></li>
+                                <li><a href="node/echo-node">Echo</a></li>
+                                <li><a href="node/state-node">State</a></li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+
+                <p style="margin-top: 15px;"><a href="echo-form.html">Interactive Echo Form</a></p>
+            </li>
         </ul>
     </div>
 

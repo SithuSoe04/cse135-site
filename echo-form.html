@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Form Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input, button {
+            padding: 8px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #response {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Echo Form Demo</h1>
+    
+    <form id="echoForm" method="POST" action="">
+        <div class="form-group">
+            <label for="language">Language:</label>
+            <select id="language" name="language" required>
+                <option value="php">PHP</option>
+                <option value="python">Python</option>
+                <option value="node">NodeJS (Express)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="method">HTTP Method:</label>
+            <select id="method" name="method" required>
+                <option value="GET">GET</option>
+                <option value="POST" selected>POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="encoding">Content Encoding:</label>
+            <select id="encoding" name="encoding" required>
+                <option value="application/x-www-form-urlencoded" selected>application/x-www-form-urlencoded</option>
+                <option value="application/json">application/json</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="field1">Field 1:</label>
+            <input type="text" id="field1" name="field1" placeholder="Enter some data">
+        </div>
+        
+        <div class="form-group">
+            <label for="field2">Field 2:</label>
+            <input type="text" id="field2" name="field2" placeholder="Enter more data">
+        </div>
+        
+        <button type="submit">Submit</button>
+    </form>
+    
+    <div id="response" style="display:none;">
+        <h2>Response:</h2>
+        <div id="responseContent"></div>
+    </div>
+    
+    <noscript>
+        <p style="color: red;">JavaScript is disabled. The form will work in reduced mode.</p>
+    </noscript>
+    
+    <script>
+        document.getElementById('echoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const language = document.getElementById('language').value;
+            const method = document.getElementById('method').value;
+            const encoding = document.getElementById('encoding').value;
+            const field1 = document.getElementById('field1').value;
+            const field2 = document.getElementById('field2').value;
+            
+            // Construct endpoint URL
+            let endpoint = '';
+            if (language === 'php') {
+                endpoint = '/phpcode/echo-php.php';
+            } else if (language === 'python') {
+                endpoint = '/pythoncode/echo-python.py';
+            } else if (language === 'node') {
+                endpoint = '/node/echo-node';
+            }
+            
+            // Prepare data
+            let body = null;
+            let url = endpoint;
+            
+            if (method === 'GET') {
+                const params = new URLSearchParams();
+                if (field1) params.append('field1', field1);
+                if (field2) params.append('field2', field2);
+                url += '?' + params.toString();
+            } else {
+                if (encoding === 'application/json') {
+                    body = JSON.stringify({
+                        field1: field1,
+                        field2: field2
+                    });
+                } else {
+                    const params = new URLSearchParams();
+                    if (field1) params.append('field1', field1);
+                    if (field2) params.append('field2', field2);
+                    body = params.toString();
+                }
+            }
+            
+            // Prepare fetch options
+            const options = {
+                method: method,
+                headers: {}
+            };
+            
+            if (method !== 'GET' && body) {
+                options.body = body;
+                options.headers['Content-Type'] = encoding;
+            }
+            
+            // Make request
+            fetch(url, options)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('responseContent').textContent = data;
+                    document.getElementById('response').style.display = 'block';
+                })
+                .catch(error => {
+                    document.getElementById('responseContent').textContent = 'Error: ' + error;
+                    document.getElementById('response').style.display = 'block';
+                });
+        });
+        
+        // Update form action for no-JS fallback
+        document.getElementById('language').addEventListener('change', updateFormAction);
+        
+        function updateFormAction() {
+            const language = document.getElementById('language').value;
+            const form = document.getElementById('echoForm');
+
+            if (language === 'php') {
+                form.action = '/phpcode/echo-php.php';
+            } else if (language === 'python') {
+                form.action = '/pythoncode/echo-python.py';
+            } else if (language === 'node') {
+                form.action = '/node/echo-node';
+            }
+        }
+        
+        updateFormAction();
+    </script>
+</body>
+</html>
