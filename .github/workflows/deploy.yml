@@ -15,4 +15,8 @@ jobs:
           port: 22
           script: |
             cd /var/www/cse135phyosithu.site/public_html
+            git fetch origin main
+            git reset --hard origin/main
             git pull origin main
+            chmod +x pythoncode/*.py
+            chmod +x perlcode/*.pl
