@@ -20,21 +20,3 @@ jobs:
             git pull origin main
             chmod +x pythoncode/*.py
             chmod +x perlcode/*.pl
-
-            cd nodejscode
-            npm install
-
-            # Restart the NodeJS server with pm2
-            # Install pm2 if not already installed
-            if ! command -v pm2 &> /dev/null; then
-              sudo npm install -g pm2
-            fi
-
-            # Stop existing process if running
-            pm2 delete cse135-node || true
-
-            # Start the server
-            pm2 start server.js --name cse135-node
-
-            # Save pm2 process list
-            pm2 save
