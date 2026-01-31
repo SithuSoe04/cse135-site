@@ -22,6 +22,6 @@ print(f"""<!DOCTYPE html>
         {saved_data.value if saved_data else "No data found."}
     </div>
     <p><a href="state-python.py">Return to Entry Screen</a></p>
-    <p><a href="state-clear-python.py" style="color: red;">Clear Cookie</a></p>
+    <p><a href="state-python.py?action=clear" style="color: red;">Clear Cookie</a></p>
 </body>
 </html>""")
