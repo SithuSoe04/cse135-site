@@ -1,7 +1,8 @@
+#!/usr/bin/python3
 import os
 from datetime import datetime
 
-team_name = "Your Team Name"
+team_name = "Sithu Soe and Phyo Thant"
 language = "Python"
 date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 ip_address = os.environ.get('REMOTE_ADDR', 'Unknown')
