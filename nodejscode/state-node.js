@@ -1,116 +1,44 @@
 #!/usr/bin/node
 
 const querystring = require('querystring');
-const fs = require('fs');
-const path = require('path');
-
-// Simple file-based session storage
-const sessionDir = '/tmp/nodejs-sessions';
-if (!fs.existsSync(sessionDir)) {
-    fs.mkdirSync(sessionDir, { recursive: true });
-}
-
-// Get or create session ID from cookie
-const cookieHeader = process.env.HTTP_COOKIE || '';
-let sessionId = null;
-
-const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
-    const [key, value] = cookie.trim().split('=');
-    if (key) acc[key] = value;
-    return acc;
-}, {});
-
-sessionId = cookies['nodejs-session-id'];
-
-if (!sessionId) {
-    sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-const sessionFile = path.join(sessionDir, sessionId + '.json');
-
-// Read session data
-let sessionData = { savedData: null, savedAt: null };
-if (fs.existsSync(sessionFile)) {
-    try {
-        sessionData = JSON.parse(fs.readFileSync(sessionFile, 'utf8'));
-    } catch (e) {}
-}
+const url = require('url');
 
 const method = process.env.REQUEST_METHOD || 'GET';
-const queryString = process.env.QUERY_STRING || '';
-const query = querystring.parse(queryString);
+const query = querystring.parse(process.env.QUERY_STRING || '');
 
-// Handle POST
+// 1. Handle CLEAR action
+if (query.action === 'clear') {
+    process.stdout.write("Set-Cookie: saved_data=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT\n");
+    process.stdout.write("Location: state-node.js\n\n");
+    process.exit();
+}
+
+// 2. Handle SAVE action (POST)
 if (method === 'POST') {
     let body = '';
-    process.stdin.setEncoding('utf8');
-    
-    process.stdin.on('data', chunk => {
-        body += chunk;
-    });
-    
+    process.stdin.on('data', chunk => { body += chunk; });
     process.stdin.on('end', () => {
-        const postData = querystring.parse(body);
-        
-        if (postData.data) {
-            sessionData.savedData = postData.data;
-            sessionData.savedAt = new Date().toISOString();
-            fs.writeFileSync(sessionFile, JSON.stringify(sessionData));
-        }
-        
-        // Redirect
-        console.log('Status: 303 See Other');
-        console.log(`Set-Cookie: nodejs-session-id=${sessionId}; Path=/; Max-Age=86400`);
-        console.log(`Location: ${process.env.SCRIPT_NAME || '/nodejscode/state-node.js'}\n`);
+        const params = querystring.parse(body);
+        const data = params.data || '';
+        process.stdout.write(`Set-Cookie: saved_data=${encodeURIComponent(data)}; Path=/; HttpOnly\n`);
+        process.stdout.write("Location: state-node.js\n\n");
+        process.exit();
     });
-    
-    return;
-}
-
-// Handle clear action
-if (query.action === 'clear') {
-    sessionData = { savedData: null, savedAt: null };
-    fs.writeFileSync(sessionFile, JSON.stringify(sessionData));
-    
-    console.log('Status: 303 See Other');
-    console.log(`Set-Cookie: nodejs-session-id=${sessionId}; Path=/; Max-Age=86400`);
-    console.log(`Location: ${process.env.SCRIPT_NAME || '/nodejscode/state-node.js'}\n`);
-    return;
-}
-
-// Display page
-console.log(`Set-Cookie: nodejs-session-id=${sessionId}; Path=/; Max-Age=86400`);
-console.log('Content-Type: text/html; charset=utf-8\n');
-
-let html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>State Demo - NodeJS</title>
-</head>
-<body>
-    <h1>State Management Demo - NodeJS (File-based Sessions)</h1>
-    
-    <h2>Save Data</h2>
-    <form method="POST">
-        <label for="data">Enter data to save:</label><br>
-        <input type="text" id="data" name="data" size="50"><br><br>
-        <button type="submit">Save</button>
-    </form>
-    
-    <h2>Current Saved Data</h2>`;
-
-if (sessionData.savedData) {
-    html += `
-    <p><strong>Data:</strong> ${sessionData.savedData}</p>
-    <p><strong>Saved at:</strong> ${sessionData.savedAt}</p>
-    <a href="?action=clear">Clear Data</a>`;
 } else {
-    html += `<p>No data saved yet.</p>`;
-}
-
-html += `
+    // 3. Display Entry UI
+    process.stdout.write("Content-Type: text/html\n\n");
+    process.stdout.write(`<!DOCTYPE html>
+<html>
+<head><title>Node State Entry</title></head>
+<body>
+    <h1>NodeJS State Management - Entry</h1>
+    <form method="POST">
+        <label>Enter information to save in Cookie:</label><br>
+        <input type="text" name="data" placeholder="e.g., Team Member Name">
+        <button type="submit">Save to Cookie</button>
+    </form>
+    <hr>
+    <p><a href="state-view-node.js">Go to the second screen to see if data persists</a></p>
 </body>
-</html>`;
-
-console.log(html);
+</html>`);
+}
