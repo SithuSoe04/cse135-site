@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/node
 
 const response = {
     team: 'Team Phyo Thant, Sithu Soe',

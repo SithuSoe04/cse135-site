@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/node
 
 console.log('Content-Type: text/html; charset=utf-8\n');
 

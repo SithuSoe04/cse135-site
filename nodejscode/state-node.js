@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/node
 
 const querystring = require('querystring');
 const fs = require('fs');
