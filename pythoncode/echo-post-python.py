@@ -6,7 +6,7 @@ import urllib.parse
 from datetime import datetime
 import socket
 
-method = os.environ.get('REQUEST_METHOD', 'POST')
+method = os.environ.get('REQUEST_METHOD', 'GET')  # Changed from 'POST' to 'GET'
 content_type = os.environ.get('CONTENT_TYPE', '')
 date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 ip_address = os.environ.get('REMOTE_ADDR', 'Unknown')
@@ -14,22 +14,25 @@ user_agent = os.environ.get('HTTP_USER_AGENT', 'Unknown')
 hostname = socket.gethostname()
 
 # Read from stdin for POST, PUT, DELETE
-if 'application/json' in content_type:
-    raw_input = sys.stdin.read()
-    if raw_input:
-        try:
-            received_data = json.loads(raw_input)
-        except:
-            received_data = {'raw': raw_input}
+if method in ['POST', 'PUT', 'DELETE']:
+    if 'application/json' in content_type:
+        raw_input = sys.stdin.read()
+        if raw_input:
+            try:
+                received_data = json.loads(raw_input)
+            except:
+                received_data = {'raw': raw_input}
+        else:
+            received_data = {}
     else:
-        received_data = {}
+        # x-www-form-urlencoded
+        raw_input = sys.stdin.read()
+        if raw_input:
+            received_data = dict(urllib.parse.parse_qsl(raw_input))
+        else:
+            received_data = {}
 else:
-    # x-www-form-urlencoded
-    raw_input = sys.stdin.read()
-    if raw_input:
-        received_data = dict(urllib.parse.parse_qsl(raw_input))
-    else:
-        received_data = {}
+    received_data = {}
 
 response = {
     'language': 'Python',

@@ -3,7 +3,7 @@
 const querystring = require('querystring');
 const os = require('os');
 
-const method = process.env.REQUEST_METHOD || 'POST';
+const method = process.env.REQUEST_METHOD || 'GET';  // Changed from 'POST' to 'GET'
 const contentType = process.env.CONTENT_TYPE || '';
 const dateTime = new Date().toISOString();
 const ipAddress = process.env.REMOTE_ADDR || 'Unknown';
@@ -12,27 +12,35 @@ const hostname = os.hostname();
 
 let receivedData = {};
 
-// Read from stdin for POST, PUT, DELETE
-let body = '';
-process.stdin.setEncoding('utf8');
+if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
+    // Read from stdin for POST, PUT, DELETE
+    let body = '';
+    process.stdin.setEncoding('utf8');
 
-process.stdin.on('data', chunk => {
-    body += chunk;
-});
+    process.stdin.on('data', chunk => {
+        body += chunk;
+    });
 
-process.stdin.on('end', () => {
-    if (body) {
-        if (contentType.includes('application/json')) {
-            try {
-                receivedData = JSON.parse(body);
-            } catch (e) {
-                receivedData = { raw: body };
+    process.stdin.on('end', () => {
+        if (body) {
+            if (contentType.includes('application/json')) {
+                try {
+                    receivedData = JSON.parse(body);
+                } catch (e) {
+                    receivedData = { raw: body };
+                }
+            } else {
+                receivedData = querystring.parse(body);
             }
-        } else {
-            receivedData = querystring.parse(body);
         }
-    }
-    
+        
+        outputResponse();
+    });
+} else {
+    outputResponse();
+}
+
+function outputResponse() {
     const response = {
         language: 'NodeJS',
         method: method,
@@ -46,4 +54,4 @@ process.stdin.on('end', () => {
     
     console.log('Content-Type: application/json\n');
     console.log(JSON.stringify(response, null, 2));
-});
+}
