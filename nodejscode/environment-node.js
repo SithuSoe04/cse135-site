@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 console.log('Content-Type: text/html; charset=utf-8\n');
 
 let html = `<!DOCTYPE html>
