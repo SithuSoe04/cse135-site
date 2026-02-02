@@ -16,13 +16,12 @@ my $date_time    = scalar localtime();
 
 my $received_data;
 
-# 2. Handle Data Retrieval
+# 2. Handle Data Retrieval (Logic remains the same)
 if ($method eq 'GET') {
     my $query_string = $ENV{'QUERY_STRING'} || '';
     my $cgi = CGI->new($query_string);
     $received_data = { $cgi->Vars };
 } else {
-    # Read from STDIN for POST, PUT, DELETE
     my $raw_input = "";
     my $content_length = $ENV{'CONTENT_LENGTH'} || 0;
     if ($content_length > 0) {
@@ -30,20 +29,15 @@ if ($method eq 'GET') {
     }
 
     if ($content_type =~ /application\/json/i) {
-        eval {
-            $received_data = decode_json($raw_input);
-        };
-        if ($@) {
-            $received_data = { raw => $raw_input, error => "Invalid JSON" };
-        }
+        eval { $received_data = decode_json($raw_input); };
+        if ($@) { $received_data = { raw => $raw_input, error => "Invalid JSON" }; }
     } else {
-        # Default to x-www-form-urlencoded
         my $cgi = CGI->new($raw_input);
         $received_data = { $cgi->Vars };
     }
 }
 
-# 3. Construct and Output Response
+# 3. Construct Response Hash
 my %response = (
     language      => "Perl",
     method        => $method,
@@ -55,6 +49,8 @@ my %response = (
     received_data => $received_data
 );
 
-# Mandatory CGI Header Handshake
+# 4. Mandatory CGI Header and Pretty-Printed Output
 print "Content-Type: application/json\n\n";
-print encode_json(\%response);
+
+my $json_text = JSON->new->utf8->pretty->encode(\%response);
+print $json_text;
