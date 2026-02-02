@@ -3,48 +3,54 @@ import sys
 import os
 import json
 import urllib.parse
+from datetime import datetime
 
-# 1. Required CGI Headers
-print("Content-Type: text/plain")  # Or text/html based on your preference
+# Mandatory CGI Headers
+print("Content-Type: text/plain")
 print("Cache-Control: no-cache")
-print("\n")  # End of headers
+print("\n")
 
 def main():
+    # 1. Collect the specific Metadata requested by the Professor
     method = os.environ.get("REQUEST_METHOD", "GET")
     content_type = os.environ.get("CONTENT_TYPE", "")
     content_length = int(os.environ.get("CONTENT_LENGTH", 0))
+    
+    hostname = os.environ.get("HTTP_HOST", "N/A")
+    user_agent = os.environ.get("HTTP_USER_AGENT", "N/A")
+    remote_ip = os.environ.get("REMOTE_ADDR", "N/A")
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # 2. Parse the Data (Supporting GET, POST, PUT, DELETE and JSON)
     data_received = {}
 
-    # Handle GET Request
     if method == "GET":
         query_string = os.environ.get("QUERY_STRING", "")
         data_received = urllib.parse.parse_qs(query_string)
-
-    # Handle POST/PUT/DELETE Request
     elif content_length > 0:
         raw_body = sys.stdin.read(content_length)
-        
-        # Check if incoming data is JSON
         if "application/json" in content_type:
             try:
                 data_received = json.loads(raw_body)
-            except json.JSONDecodeError:
-                print("Error: Invalid JSON body.")
-                return
-        # Otherwise assume URL-encoded (application/x-www-form-urlencoded)
+            except:
+                data_received = {"error": "Invalid JSON body"}
         else:
-            parsed_data = urllib.parse.parse_qs(raw_body)
-            # parse_qs puts everything in lists; flatten them for simple echo
-            data_received = {k: v[0] if len(v) == 1 else v for k, v in parsed_data.items()}
+            # Standard x-www-form-urlencoded
+            parsed = urllib.parse.parse_qs(raw_body)
+            data_received = {k: v[0] if len(v) == 1 else v for k, v in parsed.items()}
 
-    # Output the Echo results
+    # 3. Output as required by the assignment
+    print(f"--- SERVER METADATA ---")
+    print(f"Hostname: {hostname}")
+    print(f"Date/Time: {current_time}")
+    print(f"User Agent: {user_agent}")
+    print(f"IP Address: {remote_ip}")
+    print(f"HTTP Method: {method}")
+    
+    print(f"\n--- ECHO DATA ---")
     if not data_received:
-        print("No data received.")
+        print("No data was submitted.")
     else:
-        print(f"Method: {method}")
-        print(f"Content-Type: {content_type}")
-        print("-" * 20)
         for key, value in data_received.items():
             print(f"{key}: {value}")
 
