@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fingerprint Demo - CSE 135</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .info-box {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        .status {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.new-user {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.returning {
+            background: #cce5ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+        }
+        .status.reassociated {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .history {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .history h3 {
+            margin-top: 0;
+        }
+        .history-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        #loading {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .explanation {
+            background: #f0f7ff;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Browser Fingerprinting Demo</h1>
+
+        <div class="explanation">
+            <strong>What is this?</strong> This demo shows how browser fingerprinting can identify you even after clearing cookies.
+            Your browser's unique characteristics (screen size, fonts, plugins, etc.) create a "fingerprint" that persists across sessions.
+        </div>
+
+        <div id="loading">Loading fingerprint...</div>
+
+        <div id="content" style="display:none;">
+            <h2>Your Identity</h2>
+
+            <div id="status-box" class="status"></div>
+
+            <div class="info-box">
+                <strong>Browser Fingerprint:</strong> <span id="fingerprint"></span>
+            </div>
+
+            <div class="info-box">
+                <strong>Session Cookie:</strong> <span id="cookie-status"></span>
+            </div>
+
+            <div class="info-box">
+                <strong>Server Recognition:</strong> <span id="recognition"></span>
+            </div>
+
+            <h2>Save Some Data</h2>
+            <form id="data-form">
+                <input type="text" id="user-data" placeholder="Enter your name or any data">
+                <button type="submit" class="btn btn-primary">Save Data</button>
+            </form>
+
+            <div class="info-box">
+                <strong>Your Stored Data:</strong> <span id="stored-data">None</span>
+            </div>
+
+            <h2>Test the Demo</h2>
+            <p>Try these steps to see fingerprinting in action:</p>
+            <ol>
+                <li>Save some data above</li>
+                <li>Click "Clear Cookies Only" - your data should still be recovered via fingerprint!</li>
+                <li>Click "Clear Everything" to reset completely</li>
+            </ol>
+
+            <button class="btn btn-danger" onclick="clearCookiesOnly()">Clear Cookies Only</button>
+            <button class="btn btn-danger" onclick="clearEverything()">Clear Everything (Server Reset)</button>
+            <button class="btn btn-success" onclick="location.reload()">Refresh Page</button>
+
+            <div class="history" id="history-section">
+                <h3>Visit History (Server-Side)</h3>
+                <div id="visit-history"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FingerprintJS Open Source CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+
+    <script>
+        let visitorId = null;
+
+        // Initialize FingerprintJS
+        async function initFingerprint() {
+            try {
+                const fp = await FingerprintJS.load();
+                const result = await fp.get();
+                visitorId = result.visitorId;
+
+                document.getElementById('fingerprint').textContent = visitorId;
+
+                // Check with server
+                await checkWithServer();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (error) {
+                document.getElementById('loading').textContent = 'Error loading fingerprint: ' + error.message;
+            }
+        }
+
+        // Check fingerprint with server
+        async function checkWithServer() {
+            try {
+                const response = await fetch('phpcode/fingerprint-api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'check',
+                        fingerprint: visitorId
+                    }),
+                    credentials: 'include' // Important for cookies
+                });
+
+                const data = await response.json();
+
+                // Update cookie status
+                document.getElementById('cookie-status').textContent = data.has_cookie ?
+                    'Active (Session ID: ' + data.session_id.substring(0, 8) + '...)' :
+                    'Not present';
+
+                // Update recognition status
+                document.getElementById('recognition').textContent = data.recognition_method;
+
+                // Update status box
+                const statusBox = document.getElementById('status-box');
+                if (data.is_new) {
+                    statusBox.className = 'status new-user';
+                    statusBox.textContent = 'Welcome, new visitor! This is your first visit.';
+                } else if (data.reassociated) {
+                    statusBox.className = 'status reassociated';
+                    statusBox.textContent = 'Welcome back! You cleared your cookies, but we recognized you by your fingerprint!';
+                } else {
+                    statusBox.className = 'status returning';
+                    statusBox.textContent = 'Welcome back! Recognized via session cookie.';
+                }
+
+                // Update stored data
+                document.getElementById('stored-data').textContent = data.stored_data || 'None';
+
+                // Update visit history
+                if (data.visit_history && data.visit_history.length > 0) {
+                    const historyHtml = data.visit_history.map(visit =>
+                        `<div class="history-item">${visit.time} - ${visit.method}</div>`
+                    ).join('');
+                    document.getElementById('visit-history').innerHTML = historyHtml;
+                } else {
+                    document.getElementById('visit-history').innerHTML = '<div class="history-item">No previous visits</div>';
+                }
+
+            } catch (error) {
+                console.error('Server error:', error);
+                document.getElementById('recognition').textContent = 'Error connecting to server';
+            }
+        }
+
+        // Save user data
+        document.getElementById('data-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const userData = document.getElementById('user-data').value;
+
+            if (!userData.trim()) {
+                alert('Please enter some data');
+                return;
+            }
+
+            try {
+                const response = await fetch('phpcode/fingerprint-api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'save',
+                        fingerprint: visitorId,
+                        data: userData
+                    }),
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('stored-data').textContent = userData;
+                    document.getElementById('user-data').value = '';
+                    alert('Data saved! Try clearing cookies and refreshing to see it persist.');
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+            }
+        });
+
+        // Clear cookies only (client-side)
+        function clearCookiesOnly() {
+            // Delete PHPSESSID cookie
+            document.cookie = 'PHPSESSID=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'fingerprint_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            alert('Cookies cleared! Click OK to refresh and see fingerprint reassociation in action.');
+            location.reload();
+        }
+
+        // Clear everything including server data
+        async function clearEverything() {
+            try {
+                await fetch('phpcode/fingerprint-api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'clear',
+                        fingerprint: visitorId
+                    }),
+                    credentials: 'include'
+                });
+
+                // Clear cookies
+                document.cookie = 'PHPSESSID=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'fingerprint_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+                alert('All data cleared! You will appear as a new visitor.');
+                location.reload();
+            } catch (error) {
+                console.error('Clear error:', error);
+            }
+        }
+
+        // Initialize on page load
+        initFingerprint();
+    </script>
+</body>
+</html>
