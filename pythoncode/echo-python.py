@@ -4,50 +4,51 @@ import os
 import json
 import urllib.parse
 from datetime import datetime
+import socket
 
-print("Content-Type: text/plain")
-print("Cache-Control: no-cache")
-print("\n")
+method = os.environ.get('REQUEST_METHOD', 'GET')
+content_type = os.environ.get('CONTENT_TYPE', '')
+date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+ip_address = os.environ.get('REMOTE_ADDR', 'Unknown')
+user_agent = os.environ.get('HTTP_USER_AGENT', 'Unknown')
+hostname = socket.gethostname()
 
-def main():
-    method = os.environ.get("REQUEST_METHOD", "GET")
-    content_type = os.environ.get("CONTENT_TYPE", "")
-    content_length = int(os.environ.get("CONTENT_LENGTH", 0))
-    
-    hostname = os.environ.get("HTTP_HOST", "N/A")
-    user_agent = os.environ.get("HTTP_USER_AGENT", "N/A")
-    remote_ip = os.environ.get("REMOTE_ADDR", "N/A")
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+received_data = None
 
-    data_received = {}
-
-    if method == "GET":
-        query_string = os.environ.get("QUERY_STRING", "")
-        data_received = urllib.parse.parse_qs(query_string)
-    elif content_length > 0:
-        raw_body = sys.stdin.read(content_length)
-        if "application/json" in content_type:
-            try:
-                data_received = json.loads(raw_body)
-            except:
-                data_received = {"error": "Invalid JSON body"}
-        else:
-            parsed = urllib.parse.parse_qs(raw_body)
-            data_received = {k: v[0] if len(v) == 1 else v for k, v in parsed.items()}
-
-    print(f"--- SERVER METADATA ---")
-    print(f"Hostname: {hostname}")
-    print(f"Date/Time: {current_time}")
-    print(f"User Agent: {user_agent}")
-    print(f"IP Address: {remote_ip}")
-    print(f"HTTP Method: {method}")
-    
-    print(f"\n--- ECHO DATA ---")
-    if not data_received:
-        print("No data was submitted.")
+if method == 'GET':
+    query_string = os.environ.get('QUERY_STRING', '')
+    if query_string:
+        received_data = dict(urllib.parse.parse_qsl(query_string))
     else:
-        for key, value in data_received.items():
-            print(f"{key}: {value}")
+        received_data = {}
+elif method in ['POST', 'PUT', 'DELETE']:
+    if 'application/json' in content_type:
+        raw_input = sys.stdin.read()
+        if raw_input:
+            try:
+                received_data = json.loads(raw_input)
+            except:
+                received_data = {'raw': raw_input}
+        else:
+            received_data = {}
+    else:
+        # x-www-form-urlencoded
+        raw_input = sys.stdin.read()
+        if raw_input:
+            received_data = dict(urllib.parse.parse_qsl(raw_input))
+        else:
+            received_data = {}
 
-if __name__ == "__main__":
-    main()
+response = {
+    'language': 'Python',
+    'method': method,
+    'content_type': content_type,
+    'hostname': hostname,
+    'datetime': date_time,
+    'user_agent': user_agent,
+    'ip_address': ip_address,
+    'received_data': received_data
+}
+
+print("Content-Type: application/json\n")
+print(json.dumps(response, indent=2))
