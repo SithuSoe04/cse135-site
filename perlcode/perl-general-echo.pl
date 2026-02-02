@@ -3,13 +3,13 @@ use strict;
 use warnings;
 use CGI;
 use JSON;
-use socket;
+use Socket; 
 
 # 1. Capture Environment Variables
 my $method       = $ENV{'REQUEST_METHOD'} || 'GET';
 my $content_type = $ENV{'CONTENT_TYPE'} || '';
 my $ip_address   = $ENV{'REMOTE_ADDR'} || 'Unknown';
-my $user_agent   = $ENV{'HTTP_USER_AGENT'} || 'Unknown';
+my $user_agent   = $ENV{'HTTP_USER_AGENT'} || 'Unknown'; 
 my $hostname     = `hostname` || 'Unknown';
 chomp($hostname);
 my $date_time    = scalar localtime();
@@ -23,8 +23,11 @@ if ($method eq 'GET') {
     $received_data = { $cgi->Vars };
 } else {
     # Read from STDIN for POST, PUT, DELETE
-    my $raw_input;
-    read(STDIN, $raw_input, $ENV{'CONTENT_LENGTH'} || 0);
+    my $raw_input = "";
+    my $content_length = $ENV{'CONTENT_LENGTH'} || 0;
+    if ($content_length > 0) {
+        read(STDIN, $raw_input, $content_length);
+    }
 
     if ($content_type =~ /application\/json/i) {
         eval {
@@ -47,7 +50,7 @@ my %response = (
     content_type  => $content_type,
     hostname      => $hostname,
     datetime      => $date_time,
-    user_agent    => $userAgent,
+    user_agent    => $user_agent, 
     ip_address    => $ip_address,
     received_data => $received_data
 );
