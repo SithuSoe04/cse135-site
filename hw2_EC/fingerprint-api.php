@@ -75,16 +75,18 @@ $response = [
 
 switch ($action) {
     case 'check':
-        // Check if this fingerprint exists in our records
-        $fingerprintExists = isset($data[$fingerprint]);
-        $sessionHasFingerprint = isset($_SESSION['fingerprint']);
+        // Check if this fingerprint exists in our records AND has saved data
+        // Only consider "known" if they have actually saved data (not just visited)
+        $fingerprintExists = isset($data[$fingerprint]) && !empty($data[$fingerprint]['stored_data']);
+        $sessionHasFingerprint = isset($_SESSION['fingerprint']) && isset($_SESSION['is_known']) && $_SESSION['is_known'];
 
         if (!$sessionHasFingerprint && $fingerprintExists) {
-            // REASSOCIATION: Cookie was cleared but fingerprint matches!
+            // REASSOCIATION: Cookie was cleared but fingerprint matches with saved data!
             // Restore the session data from fingerprint storage
             $_SESSION['fingerprint'] = $fingerprint;
             $_SESSION['stored_data'] = $data[$fingerprint]['stored_data'] ?? '';
             $_SESSION['visit_count'] = ($data[$fingerprint]['visit_count'] ?? 0) + 1;
+            $_SESSION['is_known'] = true;
 
             // Log this reassociation
             $data[$fingerprint]['visit_history'][] = [
@@ -97,42 +99,34 @@ switch ($action) {
             $response['reassociated'] = true;
             $response['recognition_method'] = 'Fingerprint (cookies were cleared, but we recognized you!)';
 
+            // Save updated data
+            saveData($storageFile, $data);
+
         } elseif ($sessionHasFingerprint && $_SESSION['fingerprint'] === $fingerprint) {
-            // Normal returning user with valid session
+            // Normal returning user with valid session who has saved data before
             $_SESSION['visit_count'] = ($_SESSION['visit_count'] ?? 0) + 1;
 
-            // Update storage
-            if (!isset($data[$fingerprint])) {
-                $data[$fingerprint] = [];
+            // Update storage only if fingerprint record exists
+            if (isset($data[$fingerprint])) {
+                $data[$fingerprint]['visit_history'][] = [
+                    'time' => date('Y-m-d H:i:s'),
+                    'method' => 'Session Cookie'
+                ];
+                $data[$fingerprint]['visit_count'] = $_SESSION['visit_count'];
+                saveData($storageFile, $data);
             }
-            $data[$fingerprint]['visit_history'][] = [
-                'time' => date('Y-m-d H:i:s'),
-                'method' => 'Session Cookie'
-            ];
-            $data[$fingerprint]['visit_count'] = $_SESSION['visit_count'];
 
             $response['is_new'] = false;
             $response['reassociated'] = false;
             $response['recognition_method'] = 'Session Cookie (normal identification)';
 
         } else {
-            // New user
+            // New user - just set session fingerprint but DON'T create storage record yet
+            // Storage record is only created when they save data
             $_SESSION['fingerprint'] = $fingerprint;
             $_SESSION['stored_data'] = '';
             $_SESSION['visit_count'] = 1;
-
-            // Create new fingerprint record
-            $data[$fingerprint] = [
-                'first_seen' => date('Y-m-d H:i:s'),
-                'stored_data' => '',
-                'visit_count' => 1,
-                'visit_history' => [
-                    [
-                        'time' => date('Y-m-d H:i:s'),
-                        'method' => 'New Visitor'
-                    ]
-                ]
-            ];
+            $_SESSION['is_known'] = false; // Not known until they save data
 
             $response['is_new'] = true;
             $response['reassociated'] = false;
@@ -143,9 +137,6 @@ switch ($action) {
         $response['stored_data'] = $_SESSION['stored_data'] ?? $data[$fingerprint]['stored_data'] ?? '';
         $response['visit_count'] = $_SESSION['visit_count'] ?? 1;
         $response['visit_history'] = array_slice($data[$fingerprint]['visit_history'] ?? [], -10); // Last 10 visits
-
-        // Save updated data
-        saveData($storageFile, $data);
         break;
 
     case 'save':
@@ -153,13 +144,19 @@ switch ($action) {
         $userData = $input['data'] ?? '';
 
         $_SESSION['stored_data'] = $userData;
+        $_SESSION['is_known'] = true; // Now they are a known user
 
-        // Also save to fingerprint storage for reassociation
+        // Create/update fingerprint storage for reassociation
         if (!isset($data[$fingerprint])) {
             $data[$fingerprint] = [
                 'first_seen' => date('Y-m-d H:i:s'),
-                'visit_count' => 1,
-                'visit_history' => []
+                'visit_count' => $_SESSION['visit_count'] ?? 1,
+                'visit_history' => [
+                    [
+                        'time' => date('Y-m-d H:i:s'),
+                        'method' => 'First data save'
+                    ]
+                ]
             ];
         }
         $data[$fingerprint]['stored_data'] = $userData;

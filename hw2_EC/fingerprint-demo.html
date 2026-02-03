@@ -191,7 +191,7 @@
         // Check fingerprint with server
         async function checkWithServer() {
             try {
-                const response = await fetch('phpcode/fingerprint-api.php', {
+                const response = await fetch('fingerprint-api.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -256,7 +256,7 @@
             }
 
             try {
-                const response = await fetch('phpcode/fingerprint-api.php', {
+                const response = await fetch('fingerprint-api.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -292,7 +292,7 @@
         // Clear everything including server data
         async function clearEverything() {
             try {
-                await fetch('phpcode/fingerprint-api.php', {
+                await fetch('fingerprint-api.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
