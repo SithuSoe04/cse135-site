@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — NovaTech Solutions</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #00ff41; --dark-green: #00aa2a; --black: #0a0a0a;
+      --dark: #111; --gray: #1a1a1a; --amber: #ffb300;
+      --red: #ff3333; --cyan: #00e5ff;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--black); color:var(--green); font-family:'Share Tech Mono',monospace; min-height:100vh; }
+    body::before { content:''; position:fixed; top:0;left:0;right:0;bottom:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px); pointer-events:none; z-index:9999; }
+    @keyframes pulse-glow { 0%,100%{text-shadow:0 0 5px var(--green)} 50%{text-shadow:0 0 20px var(--green),0 0 40px var(--green)} }
+    @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    @keyframes ticker-scroll { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+    @keyframes flicker { 0%,100%{opacity:1} 93%{opacity:0.7} 94%{opacity:1} }
+
+    header { background:var(--dark); border-bottom:2px solid var(--green); }
+    .header-top { background:var(--green); color:var(--black); text-align:center; padding:4px; font-family:'VT323',monospace; font-size:1rem; }
+    .header-main { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; }
+    .logo { font-family:'Orbitron',sans-serif; font-weight:900; font-size:2rem; color:var(--green); text-shadow:0 0 20px var(--green); animation:pulse-glow 3s infinite; text-decoration:none; }
+    .logo span { color:var(--cyan); }
+    .tagline { font-family:'VT323',monospace; font-size:1.2rem; color:var(--amber); letter-spacing:2px; }
+    nav { background:var(--gray); border-bottom:1px solid var(--dark-green); padding:0.5rem 2rem; display:flex; }
+    nav a { color:var(--green); text-decoration:none; padding:0.5rem 1.2rem; font-family:'VT323',monospace; font-size:1.3rem; letter-spacing:1px; border:1px solid transparent; transition:all 0.1s; }
+    nav a:hover, nav a.active { background:var(--green); color:var(--black); border-color:var(--green); }
+    .ticker { background:var(--green); color:var(--black); padding:0.3rem 0; overflow:hidden; white-space:nowrap; }
+    .ticker-inner { display:inline-block; animation:ticker-scroll 25s linear infinite; }
+
+    main { max-width:1100px; margin:0 auto; padding:2rem; }
+    h1.page-title { font-family:'VT323',monospace; font-size:3rem; color:var(--green); text-shadow:0 0 20px var(--green); margin-bottom:0.5rem; }
+    .page-sub { color:#666; font-size:0.85rem; margin-bottom:2rem; border-bottom:1px solid var(--dark-green); padding-bottom:1rem; }
+
+    .layout { display:grid; grid-template-columns:1fr 340px; gap:2rem; }
+
+    /* Contact Form */
+    .form-wrap { background:var(--gray); border:1px solid var(--dark-green); padding:1.5rem; }
+    .form-wrap h2 { font-family:'Orbitron',sans-serif; font-size:0.9rem; color:var(--cyan); margin-bottom:1.2rem; }
+
+    .form-group { margin-bottom:1rem; }
+    label { display:block; font-size:0.8rem; color:#888; margin-bottom:0.3rem; letter-spacing:1px; }
+    input[type=text], input[type=email], input[type=tel], select, textarea {
+      width:100%; background:#000; border:1px solid var(--dark-green);
+      color:var(--green); font-family:'Share Tech Mono',monospace; font-size:0.9rem;
+      padding:0.5rem 0.7rem; outline:none; transition:border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color:var(--green); box-shadow:0 0 8px rgba(0,255,65,0.2); }
+    select option { background:#111; }
+    textarea { resize:vertical; min-height:120px; }
+
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+    .checkbox-label { display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; color:#888; }
+    input[type=checkbox] { accent-color:var(--green); cursor:pointer; }
+
+    .btn { display:inline-block; padding:0.7rem 2rem; background:transparent; border:2px solid var(--green); color:var(--green); font-family:'Share Tech Mono',monospace; font-size:1rem; cursor:pointer; letter-spacing:2px; transition:all 0.1s; }
+    .btn:hover { background:var(--green); color:var(--black); box-shadow:0 0 20px var(--green); }
+    .btn-full { width:100%; text-align:center; }
+    .btn-amber { border-color:var(--amber); color:var(--amber); }
+    .btn-amber:hover { background:var(--amber); color:var(--black); }
+
+    .success-msg { display:none; background:#000; border:2px solid var(--green); padding:1.5rem; text-align:center; }
+    .success-msg.show { display:block; }
+
+    /* Sidebar */
+    .sidebar { display:flex; flex-direction:column; gap:1.5rem; }
+    .info-box { background:var(--gray); border:1px solid var(--dark-green); padding:1.2rem; }
+    .info-box h3 { font-family:'Orbitron',sans-serif; font-size:0.8rem; color:var(--amber); margin-bottom:0.8rem; }
+    .info-box p { font-size:0.8rem; color:#888; line-height:1.7; }
+    .contact-line { display:flex; gap:0.8rem; padding:0.4rem 0; border-bottom:1px dotted rgba(0,255,65,0.15); font-size:0.82rem; }
+    .contact-line:last-child { border-bottom:none; }
+    .contact-icon { color:var(--green); min-width:20px; }
+    .contact-val { color:#aaa; }
+
+    /* ASCII map */
+    .ascii-map {
+      background:#000; border:1px solid var(--dark-green); padding:1rem;
+      font-family:'VT323',monospace; font-size:0.9rem; color:var(--dark-green);
+      line-height:1.3; white-space:pre; overflow:hidden;
+    }
+    .ascii-map .highlight { color:var(--green); }
+    .ascii-map .label { color:var(--amber); }
+
+    /* Newsletter */
+    .newsletter { background:var(--gray); border:1px solid var(--amber); padding:1.2rem; margin-top:2rem; }
+    .newsletter h2 { font-family:'Orbitron',sans-serif; font-size:0.85rem; color:var(--amber); margin-bottom:0.5rem; }
+    .newsletter p { font-size:0.8rem; color:#888; margin-bottom:0.8rem; }
+    .newsletter-row { display:flex; gap:0.5rem; }
+    .newsletter-row input { flex:1; }
+
+    footer { background:var(--dark); border-top:2px solid var(--green); padding:1.5rem 2rem; text-align:center; font-size:0.75rem; color:#444; margin-top:3rem; }
+    footer a { color:var(--dark-green); text-decoration:none; }
+
+    @media(max-width:900px) { .layout{grid-template-columns:1fr;} .form-row{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-top">⚠ SYSTEM NOTICE: NovaTech servers operating at 73% capacity — some features may experience latency ⚠</div>
+  <div class="header-main">
+    <a href="index.html" class="logo">NOVA<span>TECH</span></a>
+    <div><div class="tagline">&gt; CONTACT US_<span style="animation:blink 1s infinite;display:inline-block">█</span></div></div>
+  </div>
+</header>
+<nav>
+  <a href="index.html">[HOME]</a>
+  <a href="products.html">[PRODUCTS]</a>
+  <a href="support.html">[SUPPORT]</a>
+  <a href="contact.html" class="active">[CONTACT]</a>
+</nav>
+<div class="ticker"><span class="ticker-inner">&nbsp;&nbsp;&nbsp; SALES TEAM AVAILABILITY: CURRENTLY IN A MEETING &nbsp;|&nbsp; ESTIMATED WAIT: 2-4 BUSINESS DAYS &nbsp;|&nbsp; EMAIL PREFERRED &nbsp;|&nbsp; PHONE HOLD MUSIC: "Tom Sawyer" by Rush on loop &nbsp;|&nbsp;&nbsp;&nbsp;</span></div>
+
+<main>
+  <h1 class="page-title">&gt; CONTACT US_</h1>
+  <p class="page-sub">Reach out! We read every message (eventually). Average response time: 1–5 business days via email, 20–60 minute hold via phone.</p>
+
+  <div class="layout">
+    <!-- Form -->
+    <div>
+      <div class="form-wrap">
+        <h2>// SEND US A MESSAGE</h2>
+
+        <div id="contact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>FIRST NAME *</label>
+              <input type="text" id="fname" placeholder="First">
+            </div>
+            <div class="form-group">
+              <label>LAST NAME *</label>
+              <input type="text" id="lname" placeholder="Last">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>EMAIL ADDRESS *</label>
+            <input type="email" id="email" placeholder="you@company.com">
+          </div>
+
+          <div class="form-group">
+            <label>PHONE NUMBER</label>
+            <input type="tel" id="phone" placeholder="+1 (555) 000-0000">
+          </div>
+
+          <div class="form-group">
+            <label>COMPANY NAME</label>
+            <input type="text" id="company" placeholder="ACME Corp">
+          </div>
+
+          <div class="form-group">
+            <label>REASON FOR CONTACT *</label>
+            <select id="reason">
+              <option value="">-- SELECT ONE --</option>
+              <option>Sales Inquiry</option>
+              <option>Request a Quote</option>
+              <option>Technical Support</option>
+              <option>Billing Question</option>
+              <option>Partnership Opportunity</option>
+              <option>Complaint</option>
+              <option>General Question</option>
+              <option>I'm lost and ended up here</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>HOW DID YOU FIND US?</label>
+            <select id="source">
+              <option value="">-- SELECT --</option>
+              <option>Web Search</option>
+              <option>Referral from a friend</option>
+              <option>Flyer on a telephone pole</option>
+              <option>Cold email from us (sorry)</option>
+              <option>Accidentally</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>YOUR MESSAGE *</label>
+            <textarea id="message" placeholder="What can we help you with? The more detail the better. (We might ask you to turn it off and on again anyway.)"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="newsletter2"> Subscribe to our monthly newsletter (unsubscribe anytime — link works 80% of the time)
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="agree" required> I agree to NovaTech's Terms of Service and acknowledge that response times are estimates only *
+            </label>
+          </div>
+
+          <br>
+          <button class="btn btn-full" onclick="submitContact()">SEND MESSAGE</button>
+        </div>
+
+        <div class="success-msg" id="contact-success">
+          <div style="font-family:'VT323',monospace; font-size:2.5rem; color:var(--green); margin-bottom:0.5rem;">✓ MESSAGE RECEIVED</div>
+          <p style="color:#888; font-size:0.85rem; margin-top:0.5rem;">Your message has been added to our queue. Our team will be in touch within 1–5 business days. If this is urgent, please also open a <a href="support.html" style="color:var(--green);">support ticket</a>.</p>
+          <br>
+          <button class="btn" onclick="document.getElementById('contact-form').style.display='block'; document.getElementById('contact-success').classList.remove('show');">SEND ANOTHER</button>
+        </div>
+      </div>
+
+      <!-- Newsletter bar -->
+      <div class="newsletter">
+        <h2>// NOVATECH NEWSLETTER</h2>
+        <p>Monthly updates on system status, new features, and our ongoing payment processor saga. Usually sent on time.</p>
+        <div class="newsletter-row">
+          <input type="email" id="nl-email" placeholder="your@email.com">
+          <button class="btn btn-amber" onclick="subscribeNewsletter()">SUBSCRIBE</button>
+        </div>
+        <div id="nl-msg" style="font-size:0.8rem; margin-top:0.5rem; color:var(--dark-green); display:none;">✓ Subscribed! First issue arrives... eventually.</div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="info-box">
+        <h3>// CONTACT INFORMATION</h3>
+        <div class="contact-line">
+          <span class="contact-icon">📧</span>
+          <span class="contact-val">hello@novatech.example</span>
+        </div>
+        <div class="contact-line">
+          <span class="contact-icon">📞</span>
+          <span class="contact-val">+1 (555) 867-5309 (hold: up to 60 min)</span>
+        </div>
+        <div class="contact-line">
+          <span class="contact-icon">📠</span>
+          <span class="contact-val">+1 (555) 867-5310 (fax — yes, we still have one)</span>
+        </div>
+        <div class="contact-line">
+          <span class="contact-icon">📍</span>
+          <span class="contact-val">742 Evergreen Terrace, Suite 3B, Springfield, USA</span>
+        </div>
+        <div class="contact-line">
+          <span class="contact-icon">🕐</span>
+          <span class="contact-val">Mon–Thu 10:00–15:00 · Fri 10:00–12:00</span>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>// OFFICE LOCATION</h3>
+        <div class="ascii-map">┌─────────────────┐
+│  <span class="highlight">█ NOVATECH HQ</span>    │
+│                 │
+│    ▓▓▓▓▓▓▓▓▓   │
+│    ▓       ▓   │
+│    ▓  [NT] ▓   │
+│    ▓       ▓   │
+│    ▓▓▓▓▓▓▓▓▓   │
+│      ╠══╣      │
+│  <span class="label">742 Evergreen</span>   │
+│  <span class="label">Terrace, Ste 3B</span> │
+│                 │
+│  ═══════════════│
+│  <span class="highlight">→ MAIN ENTRANCE</span> │
+└─────────────────┘</div>
+        <p style="font-size:0.75rem; margin-top:0.5rem; color:#555;">Free parking available in the lot. Do not park in spot #7 (Greg's spot). He will know.</p>
+      </div>
+
+      <div class="info-box">
+        <h3>// SALES CONTACT</h3>
+        <p>Interested in a quote? Our sales team is available by appointment (2–3 day scheduling lead time).</p>
+        <br>
+        <a href="#" class="btn btn-amber" style="display:block; text-align:center; font-size:0.85rem;" onclick="alert('Sales calendar currently unavailable. Please email hello@novatech.example.'); return false;">BOOK A CALL</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  &copy; 1998–2025 NovaTech Solutions, Inc. &nbsp;|&nbsp;
+  <a href="#">Privacy Policy</a> &nbsp;|&nbsp;
+  <a href="#">Terms of Service</a> &nbsp;|&nbsp;
+  Do not park in spot #7.
+</footer>
+
+<script>
+  function submitContact() {
+    const fname = document.getElementById('fname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const agree = document.getElementById('agree').checked;
+    if (!fname || !email || !message) { alert('Please fill in required fields.'); return; }
+    if (!agree) { alert('Please agree to the Terms of Service.'); return; }
+    document.getElementById('contact-form').style.display = 'none';
+    document.getElementById('contact-success').classList.add('show');
+  }
+
+  function subscribeNewsletter() {
+    const email = document.getElementById('nl-email').value.trim();
+    if (!email) { alert('Please enter your email address.'); return; }
+    document.getElementById('nl-msg').style.display = 'block';
+    document.getElementById('nl-email').value = '';
+  }
+</script>
+</body>
+</html>

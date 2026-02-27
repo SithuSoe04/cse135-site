@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaTech Solutions — We Fix It (Maybe)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #00ff41;
+      --dark-green: #00aa2a;
+      --black: #0a0a0a;
+      --dark: #111;
+      --gray: #1a1a1a;
+      --amber: #ffb300;
+      --red: #ff3333;
+      --cyan: #00e5ff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--black);
+      color: var(--green);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* CRT scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Flickering animation */
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      92% { opacity: 1; }
+      93% { opacity: 0.8; }
+      94% { opacity: 1; }
+      96% { opacity: 0.9; }
+      97% { opacity: 1; }
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    @keyframes scroll-up {
+      from { transform: translateY(100%); }
+      to { transform: translateY(-100%); }
+    }
+
+    @keyframes glitch {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(2px, -2px); }
+      60% { transform: translate(-1px, 1px); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { text-shadow: 0 0 5px var(--green), 0 0 10px var(--green); }
+      50% { text-shadow: 0 0 20px var(--green), 0 0 40px var(--green), 0 0 80px var(--green); }
+    }
+
+    /* Header */
+    header {
+      background: var(--dark);
+      border-bottom: 2px solid var(--green);
+      padding: 0;
+      animation: flicker 8s infinite;
+    }
+
+    .header-top {
+      background: var(--green);
+      color: var(--black);
+      text-align: center;
+      padding: 4px;
+      font-size: 0.75rem;
+      font-family: 'VT323', monospace;
+      font-size: 1rem;
+    }
+
+    .header-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 2rem;
+      color: var(--green);
+      text-shadow: 0 0 20px var(--green), 0 0 40px var(--green);
+      animation: pulse-glow 3s ease-in-out infinite;
+      text-decoration: none;
+    }
+
+    .logo span { color: var(--cyan); }
+
+    .tagline {
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+      color: var(--amber);
+      letter-spacing: 2px;
+    }
+
+    nav {
+      background: var(--gray);
+      border-bottom: 1px solid var(--dark-green);
+      padding: 0.5rem 2rem;
+      display: flex;
+      gap: 0;
+    }
+
+    nav a {
+      color: var(--green);
+      text-decoration: none;
+      padding: 0.5rem 1.2rem;
+      font-family: 'VT323', monospace;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+      border: 1px solid transparent;
+      transition: all 0.1s;
+    }
+
+    nav a:hover, nav a.active {
+      background: var(--green);
+      color: var(--black);
+      border-color: var(--green);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 3rem 2rem;
+      text-align: center;
+      border-bottom: 1px solid var(--dark-green);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '01010101 11001010 10101010 00110011 01010101 11001010';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      font-size: 0.6rem;
+      color: rgba(0, 255, 65, 0.1);
+      letter-spacing: 4px;
+      line-height: 1.8;
+      padding: 0.5rem;
+    }
+
+    .hero h1 {
+      font-family: 'VT323', monospace;
+      font-size: 4rem;
+      color: var(--green);
+      text-shadow: 0 0 30px var(--green);
+      animation: glitch 5s infinite;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero p {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cursor { animation: blink 1s infinite; }
+
+    .btn {
+      display: inline-block;
+      padding: 0.7rem 2rem;
+      background: transparent;
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: 2px;
+      transition: all 0.1s;
+      margin: 0.25rem;
+    }
+
+    .btn:hover {
+      background: var(--green);
+      color: var(--black);
+      box-shadow: 0 0 20px var(--green);
+    }
+
+    .btn-amber {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+    .btn-amber:hover {
+      background: var(--amber);
+      color: var(--black);
+      box-shadow: 0 0 20px var(--amber);
+    }
+
+    /* Status ticker */
+    .ticker {
+      background: var(--green);
+      color: var(--black);
+      padding: 0.3rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ticker-inner {
+      display: inline-block;
+      animation: scroll-up 20s linear infinite;
+      animation-name: ticker-scroll;
+    }
+
+    @keyframes ticker-scroll {
+      from { transform: translateX(100vw); }
+      to { transform: translateX(-100%); }
+    }
+
+    /* Main content */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .card {
+      background: var(--gray);
+      border: 1px solid var(--dark-green);
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .card::before {
+      content: attr(data-id);
+      position: absolute;
+      top: -1px;
+      left: 1rem;
+      background: var(--green);
+      color: var(--black);
+      padding: 0 0.5rem;
+      font-size: 0.7rem;
+      font-family: 'VT323', monospace;
+    }
+
+    .card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: var(--cyan);
+      margin-bottom: 0.8rem;
+      padding-top: 0.5rem;
+    }
+
+    .card p {
+      font-size: 0.85rem;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    .status-ok { color: var(--green); }
+    .status-warn { color: var(--amber); }
+    .status-err { color: var(--red); }
+
+    /* System status panel */
+    .status-panel {
+      background: var(--gray);
+      border: 1px solid var(--dark-green);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+    }
+
+    .status-panel h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: var(--amber);
+      border-bottom: 1px solid var(--dark-green);
+      padding-bottom: 0.5rem;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.2rem 0;
+      border-bottom: 1px dotted rgba(0,255,65,0.1);
+    }
+
+    /* Terminal widget */
+    .terminal {
+      background: #000;
+      border: 1px solid var(--green);
+      padding: 1rem;
+      margin: 2rem 0;
+      font-family: 'VT323', monospace;
+      font-size: 1.1rem;
+    }
+
+    .terminal-header {
+      color: var(--amber);
+      margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+    }
+
+    .terminal-line { color: var(--green); line-height: 1.5; }
+    .terminal-prompt { color: var(--cyan); }
+
+    /* Counter/stats */
+    .stats-bar {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--dark-green);
+      margin: 2rem 0;
+    }
+
+    .stat {
+      flex: 1;
+      padding: 1.2rem;
+      text-align: center;
+      border-right: 1px solid var(--dark-green);
+    }
+    .stat:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: 'VT323', monospace;
+      font-size: 3rem;
+      color: var(--green);
+      text-shadow: 0 0 15px var(--green);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #555;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Interactive demo */
+    .demo-section {
+      background: var(--gray);
+      border: 1px solid var(--dark-green);
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .demo-section h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: var(--cyan);
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar-wrap {
+      background: #000;
+      border: 1px solid var(--dark-green);
+      height: 20px;
+      margin: 0.5rem 0;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--green);
+      transition: width 0.5s;
+      box-shadow: 0 0 10px var(--green);
+    }
+
+    .progress-label {
+      font-size: 0.8rem;
+      color: #888;
+      margin-bottom: 0.2rem;
+    }
+
+    /* Alert box */
+    .alert {
+      border: 1px solid var(--amber);
+      padding: 1rem;
+      margin: 1rem 0;
+      font-family: 'VT323', monospace;
+      font-size: 1.1rem;
+      color: var(--amber);
+      animation: flicker 3s infinite;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      border-top: 2px solid var(--green);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #444;
+      margin-top: 3rem;
+    }
+
+    footer a { color: var(--dark-green); text-decoration: none; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .grid-3 { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.5rem; }
+      .stats-bar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    ⚠ SYSTEM NOTICE: NovaTech servers operating at 73% capacity — some features may experience latency ⚠
+  </div>
+  <div class="header-main">
+    <a href="index.html" class="logo">NOVA<span>TECH</span></a>
+    <div>
+      <div class="tagline">&gt; SOLUTIONS FOR THE DIGITAL AGE_<span class="cursor">█</span></div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <a href="index.html" class="active">[HOME]</a>
+  <a href="products.html">[PRODUCTS]</a>
+  <a href="support.html">[SUPPORT]</a>
+  <a href="contact.html">[CONTACT]</a>
+</nav>
+
+<div class="ticker">
+  <span class="ticker-inner">
+    &nbsp;&nbsp;&nbsp; SERVER-01: ONLINE &nbsp;|&nbsp; PING: 12ms &nbsp;|&nbsp; UPTIME: 99.3% &nbsp;|&nbsp; PACKETS RECEIVED: 1,284,920 &nbsp;|&nbsp; ACTIVE USERS: 7 &nbsp;|&nbsp; LAST BACKUP: 2025-03-14 03:00 &nbsp;|&nbsp; FREE DISK: 48GB &nbsp;|&nbsp; CPU LOAD: 34% &nbsp;|&nbsp; RAM: 6.2GB / 16GB &nbsp;|&nbsp; NEW TICKET #4821: "keyboard on fire" &nbsp;|&nbsp; TICKET #4820 RESOLVED &nbsp;|&nbsp;&nbsp;&nbsp;
+  </span>
+</div>
+
+<div class="hero">
+  <h1>&gt; WELCOME TO NOVATECH_</h1>
+  <p>Enterprise-grade solutions for enterprises that can't afford enterprise-grade solutions. We've been not-quite-fixing computers since 1998.</p>
+  <a href="products.html" class="btn">BROWSE PRODUCTS</a>
+  <a href="support.html" class="btn btn-amber">OPEN TICKET</a>
+</div>
+
+<main>
+
+  <div class="alert">
+    ⚠ NOTICE: Our "Guaranteed 24-Hour Response" SLA timer is currently experiencing a known issue where it counts backwards. We are aware of this. — Management
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-num" id="counter1">4,821</span>
+      <span class="stat-label">Tickets Opened</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="counter2">4,817</span>
+      <span class="stat-label">Tickets Closed</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">4</span>
+      <span class="stat-label">Still Open</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">1998</span>
+      <span class="stat-label">Est. Year</span>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card" data-id="MODULE_01">
+      <h3>⚡ MANAGED IT SERVICES</h3>
+      <p>We manage your IT infrastructure so you don't have to understand it. Our team remotely monitors your systems during our office hours (10am–3pm, Mon–Thu).</p>
+      <br>
+      <a href="products.html" class="btn" style="font-size:0.8rem; padding: 0.4rem 1rem;">VIEW PLANS</a>
+    </div>
+    <div class="card" data-id="MODULE_02">
+      <h3>🛡 CYBERSECURITY SUITE</h3>
+      <p>NovaSec™ — Our proprietary antivirus software. Only 3 known false-positive issues (printer drivers, Excel, and sometimes Chrome). All other threats detected.</p>
+      <br>
+      <a href="products.html" class="btn" style="font-size:0.8rem; padding: 0.4rem 1rem;">LEARN MORE</a>
+    </div>
+    <div class="card" data-id="MODULE_03">
+      <h3>☁ CLOUD BACKUP PRO</h3>
+      <p>Your files, backed up to our servers in our data center (my garage). 99.9% uptime guaranteed (power permitting). Backups run nightly unless the fan is loud.</p>
+      <br>
+      <a href="products.html" class="btn" style="font-size:0.8rem; padding: 0.4rem 1rem;">START TRIAL</a>
+    </div>
+  </div>
+
+  <div class="status-panel">
+    <h2>// LIVE SYSTEM STATUS</h2>
+    <div class="status-row">
+      <span>MAIN SERVER (SERVER-01)</span>
+      <span class="status-ok">● OPERATIONAL</span>
+    </div>
+    <div class="status-row">
+      <span>BACKUP SERVER (SERVER-02)</span>
+      <span class="status-warn">● DEGRADED (fan noise)</span>
+    </div>
+    <div class="status-row">
+      <span>EMAIL GATEWAY</span>
+      <span class="status-ok">● OPERATIONAL</span>
+    </div>
+    <div class="status-row">
+      <span>TICKETING SYSTEM</span>
+      <span class="status-ok">● OPERATIONAL</span>
+    </div>
+    <div class="status-row">
+      <span>PAYMENT PROCESSOR</span>
+      <span class="status-err">● OFFLINE (investigating)</span>
+    </div>
+    <div class="status-row">
+      <span>NovaSec™ UPDATE SERVER</span>
+      <span class="status-warn">● DELAYED (last update: 2023)</span>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <h2>// INTERACTIVE DIAGNOSTIC TOOL</h2>
+    <p style="color:#888; font-size:0.85rem; margin-bottom:1rem;">Click the button to run a quick diagnostic on your connection to our servers.</p>
+
+    <div class="progress-label">Network latency check...</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar1" style="width:0%"></div></div>
+
+    <div class="progress-label">Firewall compatibility...</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar2" style="width:0%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan);"></div></div>
+
+    <div class="progress-label">NovaSec™ handshake...</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar3" style="width:0%; background: var(--amber); box-shadow: 0 0 10px var(--amber);"></div></div>
+
+    <br>
+    <button class="btn" onclick="runDiagnostic()">RUN DIAGNOSTIC</button>
+    <span id="diag-result" style="margin-left:1rem; font-size:0.9rem; color:#888;"></span>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header">// NOVATECH COMMAND INTERFACE v2.1 — TYPE 'help' FOR COMMANDS</div>
+    <div id="terminal-output">
+      <div class="terminal-line"><span class="terminal-prompt">novatech@srv-01:~$ </span>uptime</div>
+      <div class="terminal-line">14:22:07 up 412 days, 3:17, 1 user, load average: 0.34, 0.29, 0.31</div>
+      <div class="terminal-line"><span class="terminal-prompt">novatech@srv-01:~$ </span><span id="terminal-cursor" class="cursor">█</span></div>
+    </div>
+    <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+      <span class="terminal-prompt" style="align-self:center;">$&gt;</span>
+      <input type="text" id="terminal-input" placeholder="type a command..." style="
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid var(--dark-green);
+        color: var(--green);
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 1rem;
+        outline: none;
+        flex: 1;
+      " onkeydown="handleTerminal(event)">
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  &copy; 1998–2025 NovaTech Solutions, Inc. &nbsp;|&nbsp;
+  <a href="contact.html">Contact</a> &nbsp;|&nbsp;
+  <a href="#">Privacy Policy</a> &nbsp;|&nbsp;
+  <a href="#">Terms of Service</a> &nbsp;|&nbsp;
+  All trademarks are property of their respective owners. NovaTech is not responsible for data loss, hardware failure, existential dread, or printer issues.
+</footer>
+
+<script>
+  // Diagnostic tool
+  function runDiagnostic() {
+    const bars = [
+      { el: document.getElementById('bar1'), max: 87 },
+      { el: document.getElementById('bar2'), max: 100 },
+      { el: document.getElementById('bar3'), max: 64 },
+    ];
+    const result = document.getElementById('diag-result');
+    result.textContent = 'Running...';
+    bars.forEach(b => b.el.style.width = '0%');
+
+    bars.forEach((b, i) => {
+      setTimeout(() => {
+        let w = 0;
+        const iv = setInterval(() => {
+          w += Math.random() * 8;
+          if (w >= b.max) { w = b.max; clearInterval(iv); }
+          b.el.style.width = w + '%';
+        }, 60);
+      }, i * 600);
+    });
+
+    setTimeout(() => {
+      result.textContent = '✓ DIAGNOSTIC COMPLETE — 2 issues found (payment module offline, NovaSec™ outdated)';
+      result.style.color = 'var(--amber)';
+    }, 3200);
+  }
+
+  // Terminal
+  const commands = {
+    help: 'Available commands: help, status, ping, version, uptime, clear, whoami, joke',
+    status: 'MAIN: OK | BACKUP: DEGRADED | EMAIL: OK | PAYMENT: OFFLINE | NovaSec: OUTDATED',
+    ping: 'PING novatech.example.com: 64 bytes, time=12ms. Packet loss: 0%. (Server-02: 30% loss)',
+    version: 'NovaTech OS v4.2.1-stable (build 20240115) — "The Barely Holding Together" release',
+    uptime: '412 days, 3 hours, 22 minutes. No reboots required (none attempted either).',
+    whoami: 'guest@novatech — you have read-only access. Nice try though.',
+    joke: 'Why do programmers prefer dark mode? Because light attracts bugs.',
+    clear: '__CLEAR__',
+  };
+
+  function handleTerminal(e) {
+    if (e.key !== 'Enter') return;
+    const input = document.getElementById('terminal-input');
+    const output = document.getElementById('terminal-output');
+    const cmd = input.value.trim().toLowerCase();
+    input.value = '';
+
+    if (!cmd) return;
+
+    if (cmd === 'clear') {
+      output.innerHTML = '<div class="terminal-line"><span class="terminal-prompt">novatech@srv-01:~$ </span><span class="cursor">█</span></div>';
+      return;
+    }
+
+    const resp = commands[cmd] || `bash: ${cmd}: command not found (did you mean 'help'?)`;
+    const lines = output.querySelectorAll('.terminal-line');
+    const lastLine = lines[lines.length - 1];
+    lastLine.innerHTML = `<span class="terminal-prompt">novatech@srv-01:~$ </span>${cmd}`;
+
+    const respLine = document.createElement('div');
+    respLine.className = 'terminal-line';
+    respLine.textContent = resp;
+    output.appendChild(respLine);
+
+    const newPrompt = document.createElement('div');
+    newPrompt.className = 'terminal-line';
+    newPrompt.innerHTML = '<span class="terminal-prompt">novatech@srv-01:~$ </span><span class="cursor">█</span>';
+    output.appendChild(newPrompt);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products — NovaTech Solutions</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #00ff41; --dark-green: #00aa2a; --black: #0a0a0a;
+      --dark: #111; --gray: #1a1a1a; --amber: #ffb300;
+      --red: #ff3333; --cyan: #00e5ff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--black); color: var(--green); font-family: 'Share Tech Mono', monospace; min-height: 100vh; }
+    body::before {
+      content: ''; position: fixed; top:0;left:0;right:0;bottom:0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+      pointer-events: none; z-index: 9999;
+    }
+    @keyframes pulse-glow { 0%,100%{text-shadow:0 0 5px var(--green),0 0 10px var(--green)} 50%{text-shadow:0 0 20px var(--green),0 0 40px var(--green)} }
+    @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    @keyframes ticker-scroll { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+
+    header { background: var(--dark); border-bottom: 2px solid var(--green); }
+    .header-top { background: var(--green); color: var(--black); text-align: center; padding: 4px; font-family:'VT323',monospace; font-size:1rem; }
+    .header-main { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; }
+    .logo { font-family:'Orbitron',sans-serif; font-weight:900; font-size:2rem; color:var(--green); text-shadow:0 0 20px var(--green); animation:pulse-glow 3s ease-in-out infinite; text-decoration:none; }
+    .logo span { color:var(--cyan); }
+    .tagline { font-family:'VT323',monospace; font-size:1.2rem; color:var(--amber); letter-spacing:2px; }
+    nav { background:var(--gray); border-bottom:1px solid var(--dark-green); padding:0.5rem 2rem; display:flex; gap:0; }
+    nav a { color:var(--green); text-decoration:none; padding:0.5rem 1.2rem; font-family:'VT323',monospace; font-size:1.3rem; letter-spacing:1px; border:1px solid transparent; transition:all 0.1s; }
+    nav a:hover, nav a.active { background:var(--green); color:var(--black); border-color:var(--green); }
+    .ticker { background:var(--green); color:var(--black); padding:0.3rem 0; overflow:hidden; white-space:nowrap; }
+    .ticker-inner { display:inline-block; animation:ticker-scroll 20s linear infinite; }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+    h1.page-title {
+      font-family:'VT323',monospace; font-size:3rem; color:var(--green);
+      text-shadow:0 0 20px var(--green); margin-bottom:0.5rem;
+    }
+    .page-sub { color:#666; font-size:0.85rem; margin-bottom:2rem; border-bottom:1px solid var(--dark-green); padding-bottom:1rem; }
+
+    .product-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.5rem; margin-bottom:2rem; }
+
+    .product-card {
+      background:var(--gray); border:1px solid var(--dark-green); padding:1.5rem;
+      position:relative; transition:border-color 0.2s;
+    }
+    .product-card:hover { border-color:var(--green); box-shadow:0 0 20px rgba(0,255,65,0.1); }
+    .product-card .badge {
+      position:absolute; top:0; right:0;
+      background:var(--amber); color:var(--black);
+      font-family:'VT323',monospace; font-size:1rem; padding:0.1rem 0.5rem;
+    }
+    .product-card h2 { font-family:'Orbitron',sans-serif; font-size:1rem; color:var(--cyan); margin-bottom:0.5rem; }
+    .product-card .price { font-family:'VT323',monospace; font-size:2rem; color:var(--green); margin:0.5rem 0; }
+    .product-card p { font-size:0.82rem; color:#888; line-height:1.7; margin-bottom:1rem; }
+    .feature-list { list-style:none; margin-bottom:1rem; }
+    .feature-list li { font-size:0.8rem; color:#aaa; padding:0.2rem 0; }
+    .feature-list li::before { content:'> '; color:var(--green); }
+
+    .btn { display:inline-block; padding:0.6rem 1.5rem; background:transparent; border:2px solid var(--green); color:var(--green); font-family:'Share Tech Mono',monospace; font-size:0.9rem; cursor:pointer; text-decoration:none; letter-spacing:1px; transition:all 0.1s; }
+    .btn:hover { background:var(--green); color:var(--black); box-shadow:0 0 20px var(--green); }
+    .btn-amber { border-color:var(--amber); color:var(--amber); }
+    .btn-amber:hover { background:var(--amber); color:var(--black); box-shadow:0 0 20px var(--amber); }
+    .btn-red { border-color:var(--red); color:var(--red); }
+
+    /* comparison table */
+    .comparison { width:100%; border-collapse:collapse; margin:2rem 0; font-size:0.85rem; }
+    .comparison th { background:var(--gray); color:var(--cyan); font-family:'Orbitron',sans-serif; font-size:0.75rem; padding:0.8rem 1rem; text-align:center; border:1px solid var(--dark-green); }
+    .comparison td { padding:0.6rem 1rem; border:1px solid var(--dark-green); color:#aaa; text-align:center; }
+    .comparison tr:nth-child(even) td { background:rgba(0,255,65,0.03); }
+    .comparison td:first-child { text-align:left; color:var(--green); }
+    .check { color:var(--green); } .cross { color:var(--red); } .warn { color:var(--amber); }
+
+    .section-heading { font-family:'Orbitron',sans-serif; font-size:0.9rem; color:var(--amber); margin:2rem 0 1rem; border-left:3px solid var(--amber); padding-left:1rem; letter-spacing:2px; }
+
+    footer { background:var(--dark); border-top:2px solid var(--green); padding:1.5rem 2rem; text-align:center; font-size:0.75rem; color:#444; margin-top:3rem; }
+    footer a { color:var(--dark-green); text-decoration:none; }
+
+    @media(max-width:768px) { .product-grid{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-top">⚠ SYSTEM NOTICE: NovaTech servers operating at 73% capacity — some features may experience latency ⚠</div>
+  <div class="header-main">
+    <a href="index.html" class="logo">NOVA<span>TECH</span></a>
+    <div><div class="tagline">&gt; SOLUTIONS FOR THE DIGITAL AGE_<span style="animation:blink 1s infinite;display:inline-block">█</span></div></div>
+  </div>
+</header>
+<nav>
+  <a href="index.html">[HOME]</a>
+  <a href="products.html" class="active">[PRODUCTS]</a>
+  <a href="support.html">[SUPPORT]</a>
+  <a href="contact.html">[CONTACT]</a>
+</nav>
+<div class="ticker"><span class="ticker-inner">&nbsp;&nbsp;&nbsp; SALE: 10% OFF ALL PLANS THIS MONTH &nbsp;|&nbsp; USE CODE: NOVATECH10 (not valid on payment page due to known bug) &nbsp;|&nbsp; NEW: NovaSec™ v3.1 — now detects 98% of threats (definition file from 2023) &nbsp;|&nbsp;&nbsp;&nbsp;</span></div>
+
+<main>
+  <h1 class="page-title">&gt; PRODUCTS &amp; PLANS_</h1>
+  <p class="page-sub">Enterprise solutions at almost-affordable prices. All plans include 24-hour support response (timer accuracy not guaranteed).</p>
+
+  <div class="product-grid">
+
+    <div class="product-card">
+      <div class="badge">POPULAR</div>
+      <h2>⚡ MANAGED IT — STARTER</h2>
+      <div class="price">$49<span style="font-size:1rem">/mo</span></div>
+      <p>Perfect for small businesses who want someone else to blame when things break. Remote support during office hours only.</p>
+      <ul class="feature-list">
+        <li>Remote desktop support (Mon–Thu, 10am–3pm)</li>
+        <li>1 server monitored</li>
+        <li>Monthly health report (PDF, 2 pages)</li>
+        <li>Email support (48hr response target)</li>
+        <li>NovaSec™ Lite included</li>
+      </ul>
+      <a href="contact.html" class="btn">GET STARTED</a>
+    </div>
+
+    <div class="product-card">
+      <h2>🚀 MANAGED IT — PROFESSIONAL</h2>
+      <div class="price">$199<span style="font-size:1rem">/mo</span></div>
+      <p>For growing companies who've realized they actually need IT support. Includes Friday coverage (half day).</p>
+      <ul class="feature-list">
+        <li>Remote + on-site support (by appointment)</li>
+        <li>Up to 10 servers monitored</li>
+        <li>Weekly health reports + dashboard</li>
+        <li>Phone support (hold time varies)</li>
+        <li>NovaSec™ Pro included</li>
+        <li>Patch management (tested first... usually)</li>
+      </ul>
+      <a href="contact.html" class="btn">GET STARTED</a>
+    </div>
+
+    <div class="product-card">
+      <h2>🛡 NOVASEC™ CYBERSECURITY</h2>
+      <div class="price">$29<span style="font-size:1rem">/mo</span></div>
+      <p>Award-winning* antivirus and threat detection. *Award was internal. Detected 3,291 threats last year (2 were real).</p>
+      <ul class="feature-list">
+        <li>Real-time threat scanning</li>
+        <li>Firewall management</li>
+        <li>Phishing email detection</li>
+        <li>Monthly threat report</li>
+        <li>Definition updates (2023 database)</li>
+      </ul>
+      <a href="contact.html" class="btn">SUBSCRIBE</a>
+    </div>
+
+    <div class="product-card">
+      <h2>☁ CLOUD BACKUP PRO</h2>
+      <div class="price">$19<span style="font-size:1rem">/mo</span></div>
+      <p>Automated nightly backups to our secure facility. 99.9% uptime (not including scheduled and unscheduled downtime).</p>
+      <ul class="feature-list">
+        <li>500GB encrypted storage</li>
+        <li>Nightly automated backups</li>
+        <li>30-day retention</li>
+        <li>One-click restore (two clicks if busy)</li>
+        <li>GDPR compliant (we think)</li>
+      </ul>
+      <a href="contact.html" class="btn">START FREE TRIAL</a>
+    </div>
+
+  </div>
+
+  <div class="section-heading">// PLAN COMPARISON</div>
+
+  <table class="comparison">
+    <thead>
+      <tr>
+        <th>FEATURE</th>
+        <th>STARTER</th>
+        <th>PROFESSIONAL</th>
+        <th>ENTERPRISE*</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Remote Support</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td>On-Site Support</td><td class="cross">✗</td><td class="warn">By appt.</td><td class="check">✓</td></tr>
+      <tr><td>Servers Monitored</td><td>1</td><td>Up to 10</td><td>Unlimited</td></tr>
+      <tr><td>Support Hours</td><td>M–Th 10–3</td><td>M–F 9–5</td><td>24/7**</td></tr>
+      <tr><td>NovaSec™</td><td class="warn">Lite</td><td class="check">Pro</td><td class="check">Pro+</td></tr>
+      <tr><td>Backup Included</td><td class="cross">✗</td><td class="warn">Add-on</td><td class="check">✓</td></tr>
+      <tr><td>SLA</td><td>48hr response</td><td>24hr response</td><td>4hr response</td></tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:0.75rem; color:#555;">*Enterprise plan requires minimum 12-month contract. **24/7 support subject to timezone and holiday schedule. Actual response times may vary.</p>
+
+  <br>
+  <div style="text-align:center; padding:1rem; border:1px solid var(--dark-green);">
+    <p style="color:#888; margin-bottom:1rem; font-size:0.85rem;">Not sure which plan fits? Our sales team will help (response time: 1–5 business days).</p>
+    <a href="contact.html" class="btn btn-amber">TALK TO SALES</a>
+  </div>
+
+</main>
+
+<footer>
+  &copy; 1998–2025 NovaTech Solutions, Inc. &nbsp;|&nbsp;
+  <a href="contact.html">Contact</a> &nbsp;|&nbsp;
+  <a href="#">Privacy Policy</a> &nbsp;|&nbsp;
+  NovaTech is not responsible for data loss, hardware failure, or existential dread.
+</footer>
+</body>
+</html>

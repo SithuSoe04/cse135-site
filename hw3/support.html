@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support — NovaTech Solutions</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #00ff41; --dark-green: #00aa2a; --black: #0a0a0a;
+      --dark: #111; --gray: #1a1a1a; --amber: #ffb300;
+      --red: #ff3333; --cyan: #00e5ff;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--black); color:var(--green); font-family:'Share Tech Mono',monospace; min-height:100vh; }
+    body::before { content:''; position:fixed; top:0;left:0;right:0;bottom:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px); pointer-events:none; z-index:9999; }
+    @keyframes pulse-glow { 0%,100%{text-shadow:0 0 5px var(--green)} 50%{text-shadow:0 0 20px var(--green),0 0 40px var(--green)} }
+    @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    @keyframes ticker-scroll { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+
+    header { background:var(--dark); border-bottom:2px solid var(--green); }
+    .header-top { background:var(--green); color:var(--black); text-align:center; padding:4px; font-family:'VT323',monospace; font-size:1rem; }
+    .header-main { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem; }
+    .logo { font-family:'Orbitron',sans-serif; font-weight:900; font-size:2rem; color:var(--green); text-shadow:0 0 20px var(--green); animation:pulse-glow 3s infinite; text-decoration:none; }
+    .logo span { color:var(--cyan); }
+    .tagline { font-family:'VT323',monospace; font-size:1.2rem; color:var(--amber); letter-spacing:2px; }
+    nav { background:var(--gray); border-bottom:1px solid var(--dark-green); padding:0.5rem 2rem; display:flex; }
+    nav a { color:var(--green); text-decoration:none; padding:0.5rem 1.2rem; font-family:'VT323',monospace; font-size:1.3rem; letter-spacing:1px; border:1px solid transparent; transition:all 0.1s; }
+    nav a:hover, nav a.active { background:var(--green); color:var(--black); border-color:var(--green); }
+    .ticker { background:var(--green); color:var(--black); padding:0.3rem 0; overflow:hidden; white-space:nowrap; }
+    .ticker-inner { display:inline-block; animation:ticker-scroll 20s linear infinite; }
+
+    main { max-width:1100px; margin:0 auto; padding:2rem; }
+    h1.page-title { font-family:'VT323',monospace; font-size:3rem; color:var(--green); text-shadow:0 0 20px var(--green); margin-bottom:0.5rem; }
+    .page-sub { color:#666; font-size:0.85rem; margin-bottom:2rem; border-bottom:1px solid var(--dark-green); padding-bottom:1rem; }
+
+    .layout { display:grid; grid-template-columns:1fr 380px; gap:2rem; }
+
+    /* Ticket form */
+    .ticket-form-wrap {
+      background:var(--gray); border:1px solid var(--dark-green); padding:1.5rem;
+    }
+    .ticket-form-wrap h2 { font-family:'Orbitron',sans-serif; font-size:0.9rem; color:var(--cyan); margin-bottom:1.2rem; }
+
+    .form-group { margin-bottom:1rem; }
+    label { display:block; font-size:0.8rem; color:#888; margin-bottom:0.3rem; letter-spacing:1px; }
+    input[type=text], input[type=email], select, textarea {
+      width:100%; background:#000; border:1px solid var(--dark-green);
+      color:var(--green); font-family:'Share Tech Mono',monospace; font-size:0.9rem;
+      padding:0.5rem 0.7rem; outline:none; transition:border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color:var(--green); box-shadow:0 0 8px rgba(0,255,65,0.2); }
+    select option { background:#111; }
+    textarea { resize:vertical; min-height:100px; }
+
+    .radio-group { display:flex; gap:1rem; flex-wrap:wrap; }
+    .radio-option { display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-size:0.85rem; }
+    input[type=radio], input[type=checkbox] { accent-color:var(--green); cursor:pointer; }
+
+    .btn { display:inline-block; padding:0.7rem 2rem; background:transparent; border:2px solid var(--green); color:var(--green); font-family:'Share Tech Mono',monospace; font-size:1rem; cursor:pointer; letter-spacing:2px; transition:all 0.1s; }
+    .btn:hover { background:var(--green); color:var(--black); box-shadow:0 0 20px var(--green); }
+    .btn-full { width:100%; text-align:center; }
+
+    .ticket-id { font-family:'VT323',monospace; font-size:1.5rem; color:var(--amber); margin-top:0.5rem; }
+
+    /* Sidebar */
+    .sidebar { display:flex; flex-direction:column; gap:1.5rem; }
+
+    .info-box { background:var(--gray); border:1px solid var(--dark-green); padding:1.2rem; }
+    .info-box h3 { font-family:'Orbitron',sans-serif; font-size:0.8rem; color:var(--amber); margin-bottom:0.8rem; }
+    .info-box p, .info-box li { font-size:0.8rem; color:#888; line-height:1.7; }
+    .info-box ul { list-style:none; padding:0; }
+    .info-box li::before { content:'→ '; color:var(--green); }
+
+    .recent-tickets { background:var(--gray); border:1px solid var(--dark-green); padding:1.2rem; }
+    .recent-tickets h3 { font-family:'Orbitron',sans-serif; font-size:0.8rem; color:var(--cyan); margin-bottom:0.8rem; }
+
+    .ticket-item { border-bottom:1px dotted rgba(0,255,65,0.15); padding:0.5rem 0; font-size:0.78rem; }
+    .ticket-item:last-child { border-bottom:none; }
+    .ticket-num { color:var(--green); }
+    .ticket-status-open { color:var(--amber); }
+    .ticket-status-closed { color:#555; }
+    .ticket-desc { color:#666; display:block; margin-top:0.15rem; }
+
+    /* FAQ accordion */
+    .faq { background:var(--gray); border:1px solid var(--dark-green); padding:1.2rem; margin-top:2rem; }
+    .faq h2 { font-family:'Orbitron',sans-serif; font-size:0.9rem; color:var(--cyan); margin-bottom:1rem; }
+    details { border-bottom:1px dotted rgba(0,255,65,0.2); padding:0.5rem 0; }
+    details:last-child { border-bottom:none; }
+    summary { cursor:pointer; color:var(--green); font-size:0.85rem; list-style:none; padding:0.3rem 0; user-select:none; }
+    summary::before { content:'[+] '; color:var(--amber); }
+    details[open] summary::before { content:'[-] '; }
+    details p { color:#888; font-size:0.8rem; padding:0.5rem 0 0.3rem 1rem; line-height:1.7; }
+
+    /* Success state */
+    .success-msg { display:none; background:#000; border:2px solid var(--green); padding:1.5rem; text-align:center; }
+    .success-msg.show { display:block; }
+
+    footer { background:var(--dark); border-top:2px solid var(--green); padding:1.5rem 2rem; text-align:center; font-size:0.75rem; color:#444; margin-top:3rem; }
+    footer a { color:var(--dark-green); text-decoration:none; }
+
+    @media(max-width:900px) { .layout { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-top">⚠ SYSTEM NOTICE: NovaTech servers operating at 73% capacity — some features may experience latency ⚠</div>
+  <div class="header-main">
+    <a href="index.html" class="logo">NOVA<span>TECH</span></a>
+    <div><div class="tagline">&gt; SUPPORT PORTAL_<span style="animation:blink 1s infinite;display:inline-block">█</span></div></div>
+  </div>
+</header>
+<nav>
+  <a href="index.html">[HOME]</a>
+  <a href="products.html">[PRODUCTS]</a>
+  <a href="support.html" class="active">[SUPPORT]</a>
+  <a href="contact.html">[CONTACT]</a>
+</nav>
+<div class="ticker"><span class="ticker-inner">&nbsp;&nbsp;&nbsp; CURRENT QUEUE: 4 OPEN TICKETS &nbsp;|&nbsp; AVG RESPONSE TIME TODAY: 47 MIN &nbsp;|&nbsp; KNOWN ISSUE: Payment module offline &nbsp;|&nbsp; TIP: Rebooting fixes 80% of issues &nbsp;|&nbsp;&nbsp;&nbsp;</span></div>
+
+<main>
+  <h1 class="page-title">&gt; SUPPORT PORTAL_</h1>
+  <p class="page-sub">Submit a ticket and our team will respond within 24 hours (business days only; timer accuracy not guaranteed).</p>
+
+  <div class="layout">
+    <!-- Left: Form -->
+    <div>
+      <div class="ticket-form-wrap">
+        <h2>// SUBMIT A SUPPORT TICKET</h2>
+
+        <div id="ticket-form">
+          <div class="form-group">
+            <label>YOUR NAME *</label>
+            <input type="text" id="name" placeholder="First Last" required>
+          </div>
+          <div class="form-group">
+            <label>EMAIL ADDRESS *</label>
+            <input type="email" id="email" placeholder="you@company.com" required>
+          </div>
+          <div class="form-group">
+            <label>ACCOUNT / COMPANY</label>
+            <input type="text" id="company" placeholder="Company Inc.">
+          </div>
+          <div class="form-group">
+            <label>ISSUE CATEGORY *</label>
+            <select id="category">
+              <option value="">-- SELECT CATEGORY --</option>
+              <option>Network / Connectivity</option>
+              <option>Server / Hosting</option>
+              <option>NovaSec™ Antivirus</option>
+              <option>Cloud Backup</option>
+              <option>Billing / Account</option>
+              <option>Hardware</option>
+              <option>Email</option>
+              <option>Printer (good luck)</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>PRIORITY</label>
+            <div class="radio-group">
+              <label class="radio-option"><input type="radio" name="priority" value="low"> Low</label>
+              <label class="radio-option"><input type="radio" name="priority" value="medium" checked> Medium</label>
+              <label class="radio-option"><input type="radio" name="priority" value="high"> High</label>
+              <label class="radio-option"><input type="radio" name="priority" value="critical"> 🔥 Critical</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>DESCRIBE YOUR ISSUE *</label>
+            <textarea id="issue" placeholder="Please describe the problem in detail. Include any error messages, what you were doing when it happened, and whether you tried turning it off and on again."></textarea>
+          </div>
+          <div class="form-group">
+            <label>STEPS ALREADY TRIED</label>
+            <div class="radio-group" style="flex-direction:column; gap:0.3rem;">
+              <label class="radio-option"><input type="checkbox" id="reboot"> Restarted the computer</label>
+              <label class="radio-option"><input type="checkbox" id="cable"> Checked the cables</label>
+              <label class="radio-option"><input type="checkbox" id="google"> Googled the error</label>
+              <label class="radio-option"><input type="checkbox" id="novapanic"> Panicked and called NovaTech</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>HOW URGENT IS THIS?</label>
+            <input type="range" id="urgency" min="1" max="10" value="5" style="width:100%; accent-color:var(--green);">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#555;">
+              <span>Mildly annoying</span>
+              <span id="urgency-val" style="color:var(--amber)">5 / 10</span>
+              <span>ON FIRE</span>
+            </div>
+          </div>
+          <button class="btn btn-full" onclick="submitTicket()">SUBMIT TICKET</button>
+        </div>
+
+        <div class="success-msg" id="success">
+          <div style="font-family:'VT323',monospace; font-size:2rem; color:var(--green); margin-bottom:0.5rem;">✓ TICKET SUBMITTED</div>
+          <div class="ticket-id" id="ticket-num"></div>
+          <p style="color:#888; font-size:0.85rem; margin-top:0.8rem;">Our team will review your ticket shortly. You'll receive an email confirmation (check your spam folder — our mail server has a reputation issue).</p>
+          <br>
+          <button class="btn" onclick="resetForm()">SUBMIT ANOTHER</button>
+        </div>
+      </div>
+
+      <div class="faq">
+        <h2>// FREQUENTLY ASKED QUESTIONS</h2>
+        <details>
+          <summary>Why is my internet slow?</summary>
+          <p>Have you tried turning off and on again? If yes, the issue is likely your ISP, your router, your computer, or the moon. Contact us and we'll investigate (remote diagnostics only).</p>
+        </details>
+        <details>
+          <summary>NovaSec™ flagged my own files as a threat. Help?</summary>
+          <p>This is a known false-positive issue affecting Excel files, printer drivers, and sometimes Chrome. You can whitelist the files in NovaSec settings. We're working on an update (definition file has been queued since Q3 2023).</p>
+        </details>
+        <details>
+          <summary>Why won't the payment page load?</summary>
+          <p>Our payment processor is currently offline. We're aware of this and actively investigating. In the meantime, please send payment via check to our PO Box, or Venmo @NovaTechSupport (personal account).</p>
+        </details>
+        <details>
+          <summary>How do I access my Cloud Backup?</summary>
+          <p>Log in to your backup portal at backup.novatech.example (may be unavailable if Server-02 is running loud). Click "Restore" and select your backup date. If the portal is down, email us and we'll manually transfer files within 3–5 business days.</p>
+        </details>
+        <details>
+          <summary>Can you help with printer issues?</summary>
+          <p>We can try. Printers exist beyond our full understanding. Our success rate for printer issues is 34%. We recommend praying first.</p>
+        </details>
+      </div>
+    </div>
+
+    <!-- Right: Sidebar -->
+    <div class="sidebar">
+      <div class="info-box">
+        <h3>// SUPPORT HOURS</h3>
+        <ul>
+          <li>Mon–Thu: 10:00 AM – 3:00 PM</li>
+          <li>Fri: 10:00 AM – 12:00 PM</li>
+          <li>Sat–Sun: Closed</li>
+          <li>Holidays: Also closed</li>
+        </ul>
+        <p style="margin-top:0.5rem; color:#555;">Emergency line available for Professional+ plans. (Hold time: 20–60 min)</p>
+      </div>
+
+      <div class="recent-tickets">
+        <h3>// RECENT TICKET STATUS</h3>
+        <div class="ticket-item">
+          <span class="ticket-num">#4821</span> <span class="ticket-status-open">● OPEN</span>
+          <span class="ticket-desc">Keyboard on fire (literal)</span>
+        </div>
+        <div class="ticket-item">
+          <span class="ticket-num">#4820</span> <span class="ticket-status-closed">● RESOLVED</span>
+          <span class="ticket-desc">NovaSec blocked Notepad</span>
+        </div>
+        <div class="ticket-item">
+          <span class="ticket-num">#4819</span> <span class="ticket-status-closed">● RESOLVED</span>
+          <span class="ticket-desc">Email not sending (caps lock)</span>
+        </div>
+        <div class="ticket-item">
+          <span class="ticket-num">#4818</span> <span class="ticket-status-open">● OPEN</span>
+          <span class="ticket-desc">Printer is "angry"</span>
+        </div>
+        <div class="ticket-item">
+          <span class="ticket-num">#4817</span> <span class="ticket-status-closed">● RESOLVED</span>
+          <span class="ticket-desc">Server-02 making sounds</span>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>// SELF-HELP CHECKLIST</h3>
+        <ul>
+          <li>Restart your computer</li>
+          <li>Check all cable connections</li>
+          <li>Clear browser cache</li>
+          <li>Disable browser extensions</li>
+          <li>Try a different browser</li>
+          <li>Restart your router</li>
+          <li>Check NovaSec whitelist</li>
+          <li>Check Server Status page</li>
+          <li>Restart computer again</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  &copy; 1998–2025 NovaTech Solutions, Inc. &nbsp;|&nbsp;
+  <a href="contact.html">Contact</a> &nbsp;|&nbsp;
+  NovaTech is not responsible for data loss, printer trauma, or unfulfilled SLAs.
+</footer>
+
+<script>
+  // Urgency slider
+  document.getElementById('urgency').addEventListener('input', function() {
+    const val = this.value;
+    document.getElementById('urgency-val').textContent = val + ' / 10';
+    if (val >= 8) document.getElementById('urgency-val').style.color = 'var(--red)';
+    else if (val >= 5) document.getElementById('urgency-val').style.color = 'var(--amber)';
+    else document.getElementById('urgency-val').style.color = 'var(--green)';
+  });
+
+  function submitTicket() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const issue = document.getElementById('issue').value.trim();
+    if (!name || !email || !issue) {
+      alert('Please fill in required fields (Name, Email, Issue Description).');
+      return;
+    }
+    const ticketNum = '#' + (4821 + Math.floor(Math.random() * 100));
+    document.getElementById('ticket-num').textContent = 'YOUR TICKET: ' + ticketNum;
+    document.getElementById('ticket-form').style.display = 'none';
+    document.getElementById('success').classList.add('show');
+  }
+
+  function resetForm() {
+    document.getElementById('ticket-form').style.display = 'block';
+    document.getElementById('success').classList.remove('show');
+    document.getElementById('name').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('issue').value = '';
+  }
+</script>
+</body>
+</html>
