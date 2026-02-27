@@ -1,0 +1,3 @@
+RewriteEngine On
+# Redirect /api/anything to reporting.php
+RewriteRule ^api/(.*)$ reporting.php/$1 [L,QSA]
