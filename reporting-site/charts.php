@@ -10,16 +10,26 @@ try {
 
     $logStmt = $pdo->query("SELECT payload FROM logs");
     $platformCounts = ['Windows' => 0, 'macOS' => 0, 'Linux' => 0, 'Mobile' => 0, 'Other' => 0];
-    
-    foreach ($logStmt as $row) {
-        $payload = json_decode($row['payload'], true);
-        $ua = $payload['data']['ua'] ?? $payload['ua'] ?? '';
-        if (stripos($ua, 'Win') !== false) $platformCounts['Windows']++;
-        elseif (stripos($ua, 'Mac') !== false) $platformCounts['macOS']++;
-        elseif (stripos($ua, 'Android') !== false || stripos($ua, 'iPhone') !== false) $platformCounts['Mobile']++;
-        elseif (stripos($ua, 'Linux') !== false) $platformCounts['Linux']++;
-        else $platformCounts['Other']++;
+
+foreach ($logStmt as $row) {
+    $payload = json_decode($row['payload'], true);
+    $ua = $payload['data']['ua'] ?? $payload['ua'] ?? $payload['data']['user_agent'] ?? '';
+    if (empty($ua)) {
+        $platformCounts['Other']++;
+        continue;
     }
+    if (stripos($ua, 'Win') !== false) {
+        $platformCounts['Windows']++;
+    } elseif (stripos($ua, 'Mac') !== false || stripos($ua, 'Macintosh') !== false) {
+        $platformCounts['macOS']++;
+    } elseif (stripos($ua, 'Android') !== false || stripos($ua, 'iPhone') !== false || stripos($ua, 'iPad') !== false) {
+        $platformCounts['Mobile']++;
+    } elseif (stripos($ua, 'Linux') !== false || stripos($ua, 'X11') !== false) {
+        $platformCounts['Linux']++;
+    } else {
+        $platformCounts['Other']++;
+    }
+}
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
