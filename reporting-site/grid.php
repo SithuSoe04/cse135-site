@@ -53,16 +53,14 @@ try {
                     <td><?php echo htmlspecialchars(substr($log['session_id'], 0, 8)) . '...'; ?></td>
                     <td><?php echo htmlspecialchars($log['page_url']); ?></td>
                     <td class="payload-cell">
-                        <pre style="margin:0; font-size: 11px; line-height: 1.2;">
-                            <?php 
-                                $json = json_decode($log['payload'], true);
-                                if ($json) {
-                                    echo htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-                                } else {
-                                    echo htmlspecialchars($log['payload']);
-                                }
-                            ?>
-                        </pre>
+                        <pre style="margin:0; font-size: 11px; line-height: 1.2;"><?php 
+                            $json = json_decode($log['payload'], true);
+                            if ($json) {
+                                echo htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                            } else {
+                                echo htmlspecialchars($log['payload']);
+                            }
+                        ?></pre>
                     </td>
                     <td><?php echo htmlspecialchars($log['created_at']); ?></td>
                 </tr>

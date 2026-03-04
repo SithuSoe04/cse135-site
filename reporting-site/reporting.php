@@ -1,8 +1,14 @@
 <?php
-// reporting.php
+session_start();
 header("Content-Type: application/json");
 
-// Reuse the secure config located one level above public_html
+// Check if the user is logged in via the dashboard session
+if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
+    http_response_code(401);
+    echo json_encode(["error" => "Unauthorized. Please login at the dashboard."]);
+    exit;
+}
+
 $config = require __DIR__ . '/../../db_config.php';
 
 try {
@@ -43,7 +49,6 @@ try {
         case 'PUT':
             if (!$id) exit;
             $input = json_decode(file_get_contents('php://input'), true);
-            // Example update logic
             $stmt = $pdo->prepare("UPDATE logs SET payload = ? WHERE id = ?");
             $stmt->execute([json_encode($input['data']), $id]);
             echo json_encode(["status" => "Updated"]);
