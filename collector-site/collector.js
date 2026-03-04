@@ -26,12 +26,13 @@
 
     // --- 1. STATIC DATA ---
     const collectStatic = () => {
-        // Manual check for CSS: Create a hidden test div
-        const testDiv = document.createElement('div');
-        testDiv.id = 'css-check';
-        testDiv.style.display = 'none';
-        document.body.appendChild(testDiv);
-        const cssAllowed = window.getComputedStyle(testDiv).display === 'none';
+        // Manual check for CSS: inject a known CSS variable, then read it back
+        const styleTag = document.createElement('style');
+        styleTag.textContent = ':root { --cse135-css-check: 1; }';
+        document.head.appendChild(styleTag);
+        const cssAllowed = getComputedStyle(document.documentElement)
+            .getPropertyValue('--cse135-css-check').trim() === '1';
+        document.head.removeChild(styleTag);
 
         // Manual check for Images
         const img = new Image();
@@ -57,7 +58,7 @@
         if (nav) {
             send('performance', {
                 raw: nav,
-                start: nav.startTime,
+                start: nav.fetchStart,
                 end: nav.loadEventEnd,
                 totalLoadMs: nav.loadEventEnd - nav.startTime
             });
@@ -68,6 +69,7 @@
     let lastActivity = Date.now();
     let isIdle = false;
     let idleStart = null;
+    let lastMouseSend = 0;
 
     // Mouse & Keyboard
     window.addEventListener('mousemove', (e) => trackActivity('mouse', { x: e.clientX, y: e.clientY }));
@@ -77,8 +79,12 @@
 
     function trackActivity(action, detail) {
         checkIdleEnd();
-        // Throttle high-frequency events like mousemove
-        if (action === 'mouse' && Date.now() % CONFIG.sampleRate !== 0) return;
+        // Throttle high-frequency mousemove events using timestamp comparison
+        if (action === 'mouse') {
+            const now = Date.now();
+            if (now - lastMouseSend < CONFIG.sampleRate) return;
+            lastMouseSend = now;
+        }
         send('activity', { action, detail });
     }
 
