@@ -2,12 +2,14 @@
 session_start();
 $error = "";
 
+$config = require __DIR__ . '/../../db_config.php';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Hardcoded credentials for the grader
-    if ($username === "admin" && $password === "ucsd2026") {
+    // Compare against the hidden config values
+    if ($username === $config['dash_user'] && $password === $config['dash_pass']) {
         $_SESSION['authenticated'] = true;
         $_SESSION['username'] = $username;
         header("Location: dashboard.php");
