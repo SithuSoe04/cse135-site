@@ -8,7 +8,7 @@ try {
     $pageStmt = $pdo->query("SELECT page_url, COUNT(*) as count FROM logs GROUP BY page_url");
     $pageData = $pageStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $logStmt = $pdo->query("SELECT payload FROM logs");
+    $logStmt = $pdo->query("SELECT payload FROM logs WHERE event_type = 'static'");
     $platformCounts = ['Windows' => 0, 'macOS' => 0, 'Linux' => 0, 'Mobile' => 0, 'Other' => 0];
 
 foreach ($logStmt as $row) {
