@@ -1,39 +1,34 @@
 <?php
 session_start();
 
-// 1. Unauthenticated Case
+// 1. Unauthenticated — send to login
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     header("Location: login.php");
     exit;
 }
 
 $current_page = basename($_SERVER['PHP_SELF']);
-$role = $_SESSION['role'] ?? 'guest';
+$role = $_SESSION['role'] ?? '';
 
-if ($current_page === '403.php' || $current_page === '404.php') {
-    return; 
+// 2. Error pages are always accessible — skip access checks
+if (in_array($current_page, ['403.php', '404.php'])) {
+    return;
 }
 
-// 2. Viewer Lockdown
-if ($role === 'viewer') {
-    $viewer_allowed = ['saved_reports.php', 'logout.php'];
-    if (!in_array($current_page, $viewer_allowed)) {
-        header("Location: 403.php");
-        exit;
-    }
-} 
+// 3. Allowlist per role
+$allowed_pages = match($role) {
+    'viewer'      => ['saved_reports.php', 'logout.php'],
+    'analyst'     => ['dashboard.php', 'reports.php', 'saved_reports.php', 'logout.php'],
+    'super_admin' => ['dashboard.php', 'reports.php', 'saved_reports.php', 'users.php', 'grid.php', 'logout.php'],
+    default       => [],
+};
 
-// 3. Analyst Lockdown
-elseif ($role === 'analyst') {
-    if ($current_page === 'grid.php') {
-        header("Location: 403.php");
-        exit;
-    }
+// 4. Access granted — update the last safe page
+if (in_array($current_page, $allowed_pages)) {
+    $_SESSION['last_safe_page'] = $current_page;
+    return;
 }
 
-// 4. Admin Check for Grid
-if ($current_page === 'grid.php' && $role !== 'super_admin') {
-    header("Location: 403.php");
-    exit;
-}
-?>
+// 5. Access denied — redirect to 403
+header("Location: 403.php");
+exit;
