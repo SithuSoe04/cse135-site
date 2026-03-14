@@ -155,6 +155,7 @@ try {
         .alert-success { background: #052e16; border: 1px solid #16a34a; color: #86efac; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; }
         .alert-error { background: #450a0a; border: 1px solid #dc2626; color: #fca5a5; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; }
     </style>
+    <noscript><style>.js-only { display: none; }</style></noscript>
 </head>
 <body>
 
@@ -178,6 +179,11 @@ try {
     </div>
 </nav>
 
+<noscript>
+    <div style="background:#422006;border:1px solid #d97706;color:#fcd34d;padding:0.75rem 1rem;border-radius:6px;font-size:0.875rem;max-width:1200px;margin:1rem auto;">
+        JavaScript is disabled. Charts and interactive features will not work.
+    </div>
+</noscript>
 <div class="container" id="printable-content">
     <header style="margin-bottom: 50px;">
         <h1>Presentational Analytics Summary</h1>

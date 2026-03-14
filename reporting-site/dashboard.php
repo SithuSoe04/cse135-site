@@ -55,6 +55,7 @@ try {
         .badge-super_admin { background: #4c1d95; color: #c4b5fd; }
         .badge-analyst { background: #1e3a5f; color: #60a5fa; }
     </style>
+    <noscript><style>.js-only { display: none; }</style></noscript>
 </head>
 <body>
 <nav>
