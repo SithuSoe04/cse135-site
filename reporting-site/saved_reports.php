@@ -119,6 +119,9 @@ $username = $_SESSION['username'];
             <a href="charts.php">Reporting</a>
         <?php endif; ?>
         <a href="saved_reports.php" style="color: var(--accent);">Saved Reports</a>
+        <?php if ($role === 'super_admin'): ?>
+            <a href="users.php">Users</a>
+        <?php endif; ?>
     </div>
     <div class="nav-right">
         <span class="nav-user">Signed in as <strong><?php echo htmlspecialchars($username); ?></strong></span>

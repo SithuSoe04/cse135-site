@@ -92,6 +92,9 @@ try {
         nav { background: var(--card); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
         nav a { color: var(--muted); text-decoration: none; margin-right: 25px; font-weight: 500; transition: 0.3s; }
         nav a:hover { color: var(--accent); }
+        .nav-right { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+        .nav-user { font-size: 0.875rem; color: var(--muted); white-space: nowrap; }
+        .nav-user strong { color: var(--text); }
         .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
         .report-card { background: var(--card); border-radius: 12px; padding: 35px; margin-bottom: 40px; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .chart-box { height: 350px; margin: 25px 0; }
