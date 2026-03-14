@@ -164,6 +164,11 @@ try {
             header p, header p strong { color: #6b7280 !important; }
             .chart-img { width: 100% !important; max-height: 300px; object-fit: contain; }
         }
+
+        @page {
+            size: A4;
+            margin: 18mm;
+        }
     </style>
 </head>
 <body>
@@ -320,28 +325,7 @@ try {
 
     // ── Print/PDF Export ──
     function downloadPDF() {
-        // Snapshot each canvas to a static <img> so it prints correctly
-        const swaps = [];
-        document.querySelectorAll('canvas').forEach(canvas => {
-            const img = document.createElement('img');
-            img.src = canvas.toDataURL('image/png');
-            img.className = 'chart-img';
-            img.style.width = canvas.offsetWidth + 'px';
-            img.style.height = canvas.offsetHeight + 'px';
-            canvas.parentNode.insertBefore(img, canvas);
-            canvas.style.display = 'none';
-            swaps.push({ canvas, img });
-        });
-
         window.print();
-
-        // Restore canvases after print dialog closes
-        setTimeout(() => {
-            swaps.forEach(({ canvas, img }) => {
-                canvas.style.display = '';
-                img.remove();
-            });
-        }, 1000);
     }
 </script>
 </body>
