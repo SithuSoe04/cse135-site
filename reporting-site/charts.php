@@ -228,38 +228,6 @@ try {
         </p>
     </header>
 
-    <?php if ($isSuperAdmin || in_array('static', $sections)): ?>
-    <div class="report-card">
-        <h2>I. Audience Demographic Profile</h2>
-        <div class="chart-box"><canvas id="platformChart"></canvas></div>
-        <table>
-            <thead><tr><th>Platform</th><th>Session Count</th></tr></thead>
-            <tbody>
-                <?php foreach($platformCounts as $label => $val): ?>
-                <tr><td><?php echo $label; ?></td><td><?php echo $val; ?></td></tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <div class="analyst-box">
-            <span class="analyst-title">Analyst Strategic Insight</span>
-            <p>Our data reveals a heavy tilt toward <strong>macOS and high-end mobile devices</strong>. This suggests our primary audience consists of users with premium hardware, likely students within the UCSD ecosystem.</p>
-            <p><strong>Recommendation:</strong> Prioritize "Retina" asset optimization and ensure CSS handles macOS's default display scaling gracefully.</p>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <?php if ($isSuperAdmin || in_array('behavioral', $sections)): ?>
-    <div class="report-card">
-        <h2>II. Content Engagement Trends</h2>
-        <div class="chart-box"><canvas id="pageChart"></canvas></div>
-        <div class="analyst-box">
-            <span class="analyst-title">Analyst Strategic Insight</span>
-            <p>Traffic distribution indicates a <strong>low depth of navigation</strong> into sub-routes. While the index page captures 100% of the initial 'static' hits, behavioral logs show a significant drop-off before users reach conversion pages.</p>
-            <p><strong>Recommendation:</strong> Implement clearer Call-to-Action (CTA) buttons on the landing page to drive deeper funnel engagement.</p>
-        </div>
-    </div>
-    <?php endif; ?>
-
     <?php if ($isSuperAdmin || $isAnalyst): ?>
     <div class="save-report-section">
         <h2>Save a Report</h2>
@@ -295,6 +263,38 @@ try {
             </div>
             <button type="submit" class="btn-save">Save Report</button>
         </form>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($isSuperAdmin || in_array('static', $sections)): ?>
+    <div class="report-card">
+        <h2>I. Audience Demographic Profile</h2>
+        <div class="chart-box"><canvas id="platformChart"></canvas></div>
+        <table>
+            <thead><tr><th>Platform</th><th>Session Count</th></tr></thead>
+            <tbody>
+                <?php foreach($platformCounts as $label => $val): ?>
+                <tr><td><?php echo $label; ?></td><td><?php echo $val; ?></td></tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <div class="analyst-box">
+            <span class="analyst-title">Analyst Strategic Insight</span>
+            <p>Our data reveals a heavy tilt toward <strong>macOS and high-end mobile devices</strong>. This suggests our primary audience consists of users with premium hardware, likely students within the UCSD ecosystem.</p>
+            <p><strong>Recommendation:</strong> Prioritize "Retina" asset optimization and ensure CSS handles macOS's default display scaling gracefully.</p>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($isSuperAdmin || in_array('behavioral', $sections)): ?>
+    <div class="report-card">
+        <h2>II. Content Engagement Trends</h2>
+        <div class="chart-box"><canvas id="pageChart"></canvas></div>
+        <div class="analyst-box">
+            <span class="analyst-title">Analyst Strategic Insight</span>
+            <p>Traffic distribution indicates a <strong>low depth of navigation</strong> into sub-routes. While the index page captures 100% of the initial 'static' hits, behavioral logs show a significant drop-off before users reach conversion pages.</p>
+            <p><strong>Recommendation:</strong> Implement clearer Call-to-Action (CTA) buttons on the landing page to drive deeper funnel engagement.</p>
+        </div>
     </div>
     <?php endif; ?>
 
