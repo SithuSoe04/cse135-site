@@ -3,11 +3,42 @@
 include 'auth_check.php'; 
 
 // Use the correct session key that matches your DB column name
-$sections = $_SESSION['allowed_sections'] ?? []; 
+$sections = $_SESSION['allowed_sections'] ?? [];
 $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
+$isAnalyst = ($_SESSION['role'] === 'analyst');
 $username = $_SESSION['username'] ?? 'User';
+$saveMsg = '';
+$saveMsgType = '';
 
 $config = require __DIR__ . '/../../db_config.php';
+
+// Handle save report form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_report'])) {
+    $title   = trim($_POST['title'] ?? '');
+    $section = trim($_POST['section'] ?? '');
+    $comment = trim($_POST['comment'] ?? '');
+    $validSections = ['static', 'behavioral', 'performance'];
+
+    if ($title === '' || !in_array($section, $validSections)) {
+        $saveMsg = 'Please provide a title and valid section.';
+        $saveMsgType = 'error';
+    } else {
+        try {
+            $pdo2 = new PDO(
+                "mysql:host={$config['host']};dbname={$config['db']};charset=utf8mb4",
+                $config['user'], $config['pass'],
+                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            );
+            $stmt = $pdo2->prepare("INSERT INTO reports (title, section, analyst_comment, created_by) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$title, $section, $comment, $_SESSION['user_id']]);
+            $saveMsg = 'Report saved successfully. Viewers can now see it in Saved Reports.';
+            $saveMsgType = 'success';
+        } catch (PDOException $e) {
+            $saveMsg = 'Failed to save report.';
+            $saveMsgType = 'error';
+        }
+    }
+}
 
 try {
     $pdo = new PDO("mysql:host={$config['host']};dbname={$config['db']}", $config['user'], $config['pass']);
@@ -82,7 +113,34 @@ try {
             body { background: #0f172a !important; }
             #printable-content { width: 100% !important; margin: 0 !important; }
             .report-card { break-inside: avoid; }
+            .save-report-section { display: none; }
         }
+        .save-report-section {
+            background: var(--card);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 40px;
+        }
+        .save-report-section h2 { color: var(--accent); font-size: 1.25rem; margin-bottom: 1.25rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; flex: 1; min-width: 200px; }
+        .form-group label { font-size: 0.8rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-group input, .form-group select, .form-group textarea {
+            background: var(--bg);
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: var(--text);
+            padding: 0.6rem 0.875rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); }
+        .btn-save { background: #10b981; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+        .btn-save:hover { background: #059669; }
+        .alert-success { background: #052e16; border: 1px solid #16a34a; color: #86efac; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; }
+        .alert-error { background: #450a0a; border: 1px solid #dc2626; color: #fca5a5; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; }
     </style>
 </head>
 <body>
@@ -135,6 +193,44 @@ try {
             <p>Traffic distribution indicates a <strong>low depth of navigation</strong> into sub-routes. While the index page captures 100% of the initial 'static' hits, behavioral logs show a significant drop-off before users reach conversion pages.</p>
             <p><strong>Recommendation:</strong> Implement clearer Call-to-Action (CTA) buttons on the landing page to drive deeper funnel engagement.</p>
         </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($isSuperAdmin || $isAnalyst): ?>
+    <div class="save-report-section">
+        <h2>Save a Report</h2>
+        <?php if ($saveMsg): ?>
+            <div class="alert-<?php echo $saveMsgType; ?>"><?php echo htmlspecialchars($saveMsg); ?></div>
+        <?php endif; ?>
+        <form method="POST" action="charts.php">
+            <input type="hidden" name="save_report" value="1">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="report-title">Report Title</label>
+                    <input type="text" id="report-title" name="title" placeholder="e.g. Weekly Performance Summary" required>
+                </div>
+                <div class="form-group" style="max-width: 220px;">
+                    <label for="report-section">Section</label>
+                    <select id="report-section" name="section" required>
+                        <option value="">-- Select --</option>
+                        <?php if ($isSuperAdmin || in_array('static', $sections)): ?>
+                            <option value="static">Demographic (Static)</option>
+                        <?php endif; ?>
+                        <?php if ($isSuperAdmin || in_array('behavioral', $sections)): ?>
+                            <option value="behavioral">Behavioral</option>
+                        <?php endif; ?>
+                        <?php if ($isSuperAdmin || in_array('performance', $sections)): ?>
+                            <option value="performance">Performance</option>
+                        <?php endif; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="report-comment">Analyst Comment</label>
+                <textarea id="report-comment" name="comment" placeholder="Write your interpretation and recommendations here..."></textarea>
+            </div>
+            <button type="submit" class="btn-save">Save Report</button>
+        </form>
     </div>
     <?php endif; ?>
 
