@@ -325,25 +325,29 @@ try {
 
             const content = document.getElementById('printable-content');
 
-            // Capture the full content area.
             const canvas = await html2canvas(content, {
                 scale: 1.5,
                 useCORS: true,
                 backgroundColor: '#0f172a',
-                logging: false
+                logging: false,
+                windowWidth: content.scrollWidth,
+                width: content.offsetWidth,
+                height: content.scrollHeight,
+                x: 0,
+                y: 0
             });
 
             const imgData   = canvas.toDataURL('image/jpeg', 0.82);
             const imgWidth  = canvas.width;
             const imgHeight = canvas.height;
 
-            // A4 dimensions in mm
-            const pageW  = 210;
-            const pageH  = 297;
-            const margin = 10; // mm
-            const usableW = pageW - margin * 2;
+            // A4 dimensions in mm — no margin so content fills edge-to-edge
+            const pageW   = 210;
+            const pageH   = 297;
+            const margin  = 0;
+            const usableW = pageW;
 
-            // Scale image to fit page width
+            // Scale image to fit full page width
             const scaledH = (imgHeight * usableW) / imgWidth;
 
             const pdf = new jsPDF({
@@ -360,12 +364,20 @@ try {
                 creator: 'CSE 135 Dashboard'
             });
 
+            // Fill every page background with the dashboard dark color
+            // so there's no white bleed at the bottom of the last page.
+            const BG = '#0f172a';
+
             // If the content is taller than one page, split across multiple pages
-            const pageContentH = pageH - margin * 2;
+            const pageContentH = pageH;
             let yOffset = 0; // tracks how many mm of the image we have already placed
 
             while (yOffset < scaledH) {
                 if (yOffset > 0) pdf.addPage();
+
+                // Dark background covers the full page first
+                pdf.setFillColor(BG);
+                pdf.rect(0, 0, pageW, pageH, 'F');
 
                 // Source slice in canvas pixels
                 const srcY      = (yOffset / scaledH) * imgHeight;
@@ -376,16 +388,19 @@ try {
                 sliceCanvas.width  = imgWidth;
                 sliceCanvas.height = sliceH;
                 const ctx = sliceCanvas.getContext('2d');
+                // Fill slice background before drawing so JPEG has no white edges
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, imgWidth, sliceH);
                 ctx.drawImage(canvas, 0, srcY, imgWidth, sliceH, 0, 0, imgWidth, sliceH);
 
-                const sliceData   = sliceCanvas.toDataURL('image/jpeg', 0.82);
+                const sliceData     = sliceCanvas.toDataURL('image/jpeg', 0.82);
                 const sliceHeightMm = (sliceH / imgHeight) * scaledH;
 
                 pdf.addImage(sliceData, 'JPEG', margin, margin, usableW, sliceHeightMm);
                 yOffset += pageContentH;
             }
 
-            // Add page numbers
+            // Add page numbers — drawn on top of the dark background
             const totalPages = pdf.getNumberOfPages();
             for (let i = 1; i <= totalPages; i++) {
                 pdf.setPage(i);
@@ -394,7 +409,7 @@ try {
                 pdf.text(
                     `Page ${i} of ${totalPages}`,
                     pageW / 2,
-                    pageH - 5,
+                    pageH - 3,
                     { align: 'center' }
                 );
             }
