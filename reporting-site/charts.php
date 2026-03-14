@@ -137,9 +137,11 @@ try {
         .alert-error { background: #450a0a; border: 1px solid #dc2626; color: #fca5a5; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; }
 
         @media print {
+            @page { margin: 1.5cm; }
             body { background: #ffffff !important; color: #111827 !important; font-family: Georgia, serif !important; }
             nav, .save-report-section { display: none !important; }
-            .container { margin-top: 10px !important; max-width: 100% !important; }
+            .container { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+            header { margin-bottom: 20px !important; }
             h1 { color: #111827 !important; font-size: 1.75rem !important; }
             h2 { color: #1e3a8a !important; border-bottom-color: #d1d5db !important; }
             p, td, li { color: #374151 !important; }
@@ -152,6 +154,7 @@ try {
                 box-shadow: none !important;
                 break-inside: avoid;
                 page-break-inside: avoid;
+                margin-bottom: 20px !important;
             }
             .analyst-box {
                 background: #eff6ff !important;
