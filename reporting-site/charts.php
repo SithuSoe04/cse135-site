@@ -31,23 +31,22 @@ try {
     $pageData = $pageStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // --- Category 3: Performance Data (Database key: 'performance') ---
-    $perfStmt = $pdo->query("SELECT payload FROM logs WHERE type = 'performance' LIMIT 100");
+    // Filtering by payload content since 'type' is nested in the JSON
+    $perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%\"type\":\"performance\"%' LIMIT 100");
     $loadTimes = [];
 
     foreach ($perfStmt as $row) {
         $p = json_decode($row['payload'], true);
-        // Looking into your specific "data" -> "raw" structure
         $t = $p['data']['raw'] ?? null;
-        
         if ($t) {
-            // Use domComplete since loadEventEnd is 0 in your logs
+            // Use domComplete based on your log structure
             $val = $t['domComplete'] ?? $t['domInteractive'] ?? 0;
             if ($val > 0) {
                 $loadTimes[] = $val;
             }
         }
     }
-    $avgLoad = count($loadTimes) > 0 ? round(array_sum($loadTimes) / count($loadTimes), 2) : "Calculated on load...";
+    $avgLoad = count($loadTimes) > 0 ? round(array_sum($loadTimes) / count($loadTimes), 2) : "Calculating...";
 
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
@@ -79,6 +78,11 @@ try {
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--bg); border-radius: 8px; overflow: hidden; }
         th, td { text-align: left; padding: 12px 15px; border-bottom: 1px solid #334155; }
         th { background: #1e293b; color: var(--muted); font-size: 0.8rem; }
+        
+        @media print {
+            body { background: #0f172a !important; }
+            .report-card { break-inside: avoid; }
+        }
     </style>
 </head>
 <body>
@@ -86,7 +90,7 @@ try {
 <nav>
     <div class="nav-links">
         <a href="dashboard.php">Dashboard</a>
-        <a href="grid.php">Data Grid</a>
+        <a href="grid.php">Logs Grid</a>
         <a href="charts.php" style="color: var(--accent);">Reporting</a>
     </div>
     <button class="btn-export" onclick="downloadPDF()">Download PDF Report</button>
@@ -116,7 +120,7 @@ try {
         </table>
         <div class="analyst-box">
             <span class="analyst-title">Analyst Strategic Insight</span>
-            <p>Our data reveals a heavy tilt toward <strong>macOS and high-end mobile devices</strong> (approx. 80% of identified sessions). This suggests our primary audience consists of users with premium hardware, likely students within the UCSD ecosystem.</p>
+            <p>Our data reveals a heavy tilt toward <strong>macOS and high-end mobile devices</strong>. This suggests our primary audience consists of users with premium hardware, likely students within the UCSD ecosystem.</p>
             <p><strong>Recommendation:</strong> Prioritize "Retina" asset optimization and ensure CSS handles macOS's default display scaling gracefully.</p>
         </div>
     </div>
@@ -138,25 +142,30 @@ try {
     <div class="report-card">
         <h2>III. Infrastructure Health Metrics</h2>
         <div class="stat-value"><?php echo $avgLoad; ?> <span style="font-size: 1.2rem; color: var(--muted); font-weight: normal;">ms</span></div>
-        <p>Mean System Load Time (Navigation Start to Load Completion)</p>
+        <p>Mean System Load Time (DOM Complete Metric)</p>
         <div class="analyst-box">
             <span class="analyst-title">Analyst Strategic Insight</span>
-            <p>With a mean load time of <strong><?php echo $avgLoad; ?>ms</strong>, the system is outperforming the 2000ms industry threshold for user frustration. However, payload decoding reveals latency spikes during peak concurrent sessions.</p>
-            <p><strong>Recommendation:</strong> Defer non-critical JavaScript (like Chart.js) until after the <code>loadEventEnd</code> to maintain this edge.</p>
+            <p>With a mean load time of <strong><?php echo $avgLoad; ?>ms</strong>, the system is performing well. However, payload decoding reveals latency spikes during peak concurrent sessions.</p>
+            <p><strong>Recommendation:</strong> Defer non-critical JavaScript until after the <code>loadEventEnd</code> to maintain this edge.</p>
         </div>
     </div>
     <?php endif; ?>
 </div>
 
 <script>
+    // PRO PDF Export Settings
     function downloadPDF() {
         const element = document.getElementById('printable-content');
         const opt = {
-            margin: 10,
-            filename: 'Analytics_Report_Final.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, backgroundColor: '#0f172a' },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            margin:       10,
+            filename:     'Executive_Analytics_Report.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                backgroundColor: '#0f172a',
+                useCORS: true 
+            },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
         html2pdf().set(opt).from(element).save();
     }
