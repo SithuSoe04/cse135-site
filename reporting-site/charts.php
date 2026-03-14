@@ -325,15 +325,15 @@ try {
 
             const content = document.getElementById('printable-content');
 
-            // Capture the full content area as a high-resolution canvas
+            // Capture the full content area.
             const canvas = await html2canvas(content, {
-                scale: 2,               // 2× for sharper text/charts
+                scale: 1.5,
                 useCORS: true,
                 backgroundColor: '#0f172a',
                 logging: false
             });
 
-            const imgData   = canvas.toDataURL('image/png');
+            const imgData   = canvas.toDataURL('image/jpeg', 0.82);
             const imgWidth  = canvas.width;
             const imgHeight = canvas.height;
 
@@ -378,10 +378,10 @@ try {
                 const ctx = sliceCanvas.getContext('2d');
                 ctx.drawImage(canvas, 0, srcY, imgWidth, sliceH, 0, 0, imgWidth, sliceH);
 
-                const sliceData   = sliceCanvas.toDataURL('image/png');
+                const sliceData   = sliceCanvas.toDataURL('image/jpeg', 0.82);
                 const sliceHeightMm = (sliceH / imgHeight) * scaledH;
 
-                pdf.addImage(sliceData, 'PNG', margin, margin, usableW, sliceHeightMm);
+                pdf.addImage(sliceData, 'JPEG', margin, margin, usableW, sliceHeightMm);
                 yOffset += pageContentH;
             }
 
