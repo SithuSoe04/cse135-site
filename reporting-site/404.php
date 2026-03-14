@@ -1,3 +1,8 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +12,7 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             background: #0f172a;
             color: #e2e8f0;
             min-height: 100vh;
@@ -20,7 +25,7 @@
         .code { font-size: 6rem; font-weight: 800; color: #f59e0b; line-height: 1; }
         h1 { font-size: 1.75rem; margin: 1rem 0 0.5rem; color: #f1f5f9; }
         p { color: #94a3b8; margin-bottom: 2rem; }
-        a {
+        .btn {
             display: inline-block;
             padding: 0.625rem 1.5rem;
             background: #3b82f6;
@@ -28,16 +33,31 @@
             border-radius: 6px;
             text-decoration: none;
             font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        a:hover { background: #2563eb; }
+        .btn:hover { background: #2563eb; transform: translateY(-1px); }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="code">404</div>
         <h1>Page Not Found</h1>
-        <p>The page you're looking for doesn't exist.</p>
-        <a href="dashboard.php">Go to Dashboard</a>
+        <p>The resource you're looking for doesn't exist or has been moved.</p>
+        
+        <button onclick="smartReturn()" class="btn">Go Back</button>
     </div>
+
+    <script>
+        function smartReturn() {
+            // If there's a history, go back to the last valid page
+            if (document.referrer !== "") {
+                window.history.back();
+            } else {
+                window.location.href = 'login.php';
+            }
+        }
+    </script>
 </body>
 </html>

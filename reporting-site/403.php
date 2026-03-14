@@ -2,42 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>403 - Access Denied</title>
+    <title>403 Forbidden | Security Policy</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: #0f172a;
-            color: #e2e8f0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .container { padding: 2rem; }
-        .code { font-size: 6rem; font-weight: 800; color: #ef4444; line-height: 1; }
-        h1 { font-size: 1.75rem; margin: 1rem 0 0.5rem; color: #f1f5f9; }
-        p { color: #94a3b8; margin-bottom: 2rem; }
-        a {
-            display: inline-block;
-            padding: 0.625rem 1.5rem;
-            background: #3b82f6;
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        a:hover { background: #2563eb; }
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --err: #ef4444; --text: #f1f5f9; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: var(--card); padding: 50px; border-radius: 16px; border: 1px solid #334155; text-align: center; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        h1 { color: var(--err); font-size: 6rem; margin: 0; font-weight: 900; line-height: 1; }
+        h2 { margin: 1rem 0; font-size: 1.75rem; color: #f1f5f9; }
+        p { color: #94a3b8; line-height: 1.6; margin-bottom: 2rem; }
+        .btn { padding: 0.75rem 1.5rem; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.2s; }
+        .btn:hover { background: #2563eb; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="code">403</div>
-        <h1>Access Denied</h1>
-        <p>You don't have permission to view this section.</p>
-        <a href="dashboard.php">Go to Dashboard</a>
+    <div class="card">
+        <h1>403</h1>
+        <h2>Access Denied</h2>
+        <p>Your account (<strong><?php echo htmlspecialchars($_SESSION['role'] ?? 'User'); ?></strong>) is not authorized to access this resource.</p>
+        
+        <button onclick="goBackOrHome()" class="btn">Go Back</button>
     </div>
+
+    <script>
+        function goBackOrHome() {
+            if (document.referrer !== "") {
+                window.history.back();
+            } else {
+                window.location.href = 'logout.php';
+            }
+        }
+    </script>
 </body>
 </html>
