@@ -85,6 +85,9 @@ try {
     <meta charset="UTF-8">
     <title>Executive Analytics Report | CSE 135</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF + html2canvas for client-side PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text: #f1f5f9; --muted: #94a3b8; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; }
@@ -99,9 +102,21 @@ try {
         .chart-box { height: 350px; margin: 25px 0; }
         .analyst-box { background: var(--bg); border-left: 5px solid var(--accent); padding: 25px; border-radius: 6px; margin-top: 25px; }
         .analyst-title { color: var(--accent); font-weight: bold; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; display: block; margin-bottom: 10px; }
-        .btn-export { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-export { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; position: relative; min-width: 180px; }
         .btn-export:hover { background: #2563eb; transform: translateY(-2px); }
         .btn-export:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-export .spinner {
+            display: none;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .btn-export.loading .spinner { display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         h1 { font-size: 2.25rem; margin-bottom: 5px; }
         h2 { color: var(--accent); font-size: 1.5rem; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
         .stat-value { font-size: 3rem; font-weight: 800; color: #10b981; }
@@ -135,43 +150,6 @@ try {
         .btn-save:hover { background: #059669; }
         .alert-success { background: #052e16; border: 1px solid #16a34a; color: #86efac; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; }
         .alert-error { background: #450a0a; border: 1px solid #dc2626; color: #fca5a5; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; }
-
-        @media print {
-            @page { margin: 1.5cm; }
-            body { background: #ffffff !important; color: #111827 !important; font-family: Georgia, serif !important; }
-            nav, .save-report-section { display: none !important; }
-            .container { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
-            header { margin-bottom: 20px !important; }
-            h1 { color: #111827 !important; font-size: 1.75rem !important; }
-            h2 { color: #1e3a8a !important; border-bottom-color: #d1d5db !important; }
-            p, td, li { color: #374151 !important; }
-            th { background: #e5e7eb !important; color: #4b5563 !important; }
-            td { border-bottom-color: #e5e7eb !important; }
-            table { background: #ffffff !important; }
-            .report-card {
-                background: #f9fafb !important;
-                border: 1px solid #d1d5db !important;
-                box-shadow: none !important;
-                break-inside: avoid;
-                page-break-inside: avoid;
-                margin-bottom: 20px !important;
-            }
-            .analyst-box {
-                background: #eff6ff !important;
-                border-left: 4px solid #3b82f6 !important;
-            }
-            .analyst-title { color: #1d4ed8 !important; }
-            .analyst-box p, .analyst-box strong { color: #1e3a5f !important; }
-            .stat-value { color: #059669 !important; }
-            code { background: #f3f4f6 !important; color: #111827 !important; }
-            header p, header p strong { color: #6b7280 !important; }
-            .chart-img { width: 100% !important; max-height: 300px; object-fit: contain; }
-        }
-
-        @page {
-            size: A4;
-            margin: 18mm;
-        }
     </style>
 </head>
 <body>
@@ -189,7 +167,10 @@ try {
     <div class="nav-right" style="display:flex;align-items:center;gap:1rem;">
         <span style="font-size:0.875rem;color:var(--muted);">Signed in as <strong style="color:var(--text);"><?php echo htmlspecialchars($username); ?></strong></span>
         <a href="logout.php" style="color:#ef4444;text-decoration:none;font-size:0.875rem;font-weight:500;">Logout</a>
-        <button class="btn-export" onclick="downloadPDF()">Download PDF Report</button>
+        <button class="btn-export" id="pdfBtn" onclick="downloadPDF()">
+            <span class="spinner" id="pdfSpinner"></span>
+            <span id="pdfBtnText">Download PDF Report</span>
+        </button>
     </div>
 </nav>
 
@@ -288,7 +269,7 @@ try {
 </div>
 
 <script>
-    // ── Chart instances (named so toDataURL() works at export time) ──
+    // ── Chart instances ──
     const platformChart = new Chart(document.getElementById('platformChart'), {
         type: 'doughnut',
         data: {
@@ -301,6 +282,7 @@ try {
         },
         options: { 
             maintainAspectRatio: false,
+            animation: { duration: 0 }, // disable animation so canvas is render-ready instantly
             plugins: { legend: { position: 'right', labels: { color: '#f1f5f9', font: { size: 14 } } } }
         }
     });
@@ -318,6 +300,7 @@ try {
         },
         options: { 
             maintainAspectRatio: false,
+            animation: { duration: 0 }, // disable animation so canvas is render-ready instantly
             plugins: { legend: { display: false } },
             scales: { 
                 y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
@@ -326,9 +309,108 @@ try {
         }
     });
 
-    // ── Print/PDF Export ──
-    function downloadPDF() {
-        window.print();
+    // ── PDF Export via jsPDF + html2canvas ──
+    async function downloadPDF() {
+        const btn    = document.getElementById('pdfBtn');
+        const spinner = document.getElementById('pdfSpinner');
+        const btnText = document.getElementById('pdfBtnText');
+
+        // Show loading state
+        btn.disabled = true;
+        btn.classList.add('loading');
+        btnText.textContent = 'Generating PDF…';
+
+        try {
+            const { jsPDF } = window.jspdf;
+
+            const content = document.getElementById('printable-content');
+
+            // Capture the full content area as a high-resolution canvas
+            const canvas = await html2canvas(content, {
+                scale: 2,               // 2× for sharper text/charts
+                useCORS: true,
+                backgroundColor: '#0f172a',
+                logging: false
+            });
+
+            const imgData   = canvas.toDataURL('image/png');
+            const imgWidth  = canvas.width;
+            const imgHeight = canvas.height;
+
+            // A4 dimensions in mm
+            const pageW  = 210;
+            const pageH  = 297;
+            const margin = 10; // mm
+            const usableW = pageW - margin * 2;
+
+            // Scale image to fit page width
+            const scaledH = (imgHeight * usableW) / imgWidth;
+
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            // Metadata
+            pdf.setProperties({
+                title: 'Executive Analytics Report',
+                author: '<?php echo addslashes($username); ?>',
+                subject: 'CSE 135 Analytics',
+                creator: 'CSE 135 Dashboard'
+            });
+
+            // If the content is taller than one page, split across multiple pages
+            const pageContentH = pageH - margin * 2;
+            let yOffset = 0; // tracks how many mm of the image we have already placed
+
+            while (yOffset < scaledH) {
+                if (yOffset > 0) pdf.addPage();
+
+                // Source slice in canvas pixels
+                const srcY      = (yOffset / scaledH) * imgHeight;
+                const sliceH    = Math.min((pageContentH / scaledH) * imgHeight, imgHeight - srcY);
+
+                // Create a temporary canvas for this page slice
+                const sliceCanvas  = document.createElement('canvas');
+                sliceCanvas.width  = imgWidth;
+                sliceCanvas.height = sliceH;
+                const ctx = sliceCanvas.getContext('2d');
+                ctx.drawImage(canvas, 0, srcY, imgWidth, sliceH, 0, 0, imgWidth, sliceH);
+
+                const sliceData   = sliceCanvas.toDataURL('image/png');
+                const sliceHeightMm = (sliceH / imgHeight) * scaledH;
+
+                pdf.addImage(sliceData, 'PNG', margin, margin, usableW, sliceHeightMm);
+                yOffset += pageContentH;
+            }
+
+            // Add page numbers
+            const totalPages = pdf.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(8);
+                pdf.setTextColor(148, 163, 184); // muted grey
+                pdf.text(
+                    `Page ${i} of ${totalPages}`,
+                    pageW / 2,
+                    pageH - 5,
+                    { align: 'center' }
+                );
+            }
+
+            // Filename: analytics-report-YYYY-MM-DD.pdf
+            const dateStr = new Date().toISOString().slice(0, 10);
+            pdf.save(`analytics-report-${dateStr}.pdf`);
+
+        } catch (err) {
+            console.error('PDF generation failed:', err);
+            alert('PDF generation failed. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.classList.remove('loading');
+            btnText.textContent = 'Download PDF Report';
+        }
     }
 </script>
 </body>
