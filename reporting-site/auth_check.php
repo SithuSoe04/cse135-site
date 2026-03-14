@@ -18,8 +18,8 @@ if (in_array($current_page, ['403.php', '404.php'])) {
 // 3. Allowlist per role
 $allowed_pages = match($role) {
     'viewer'      => ['saved_reports.php', 'logout.php'],
-    'analyst'     => ['dashboard.php', 'reports.php', 'saved_reports.php', 'logout.php'],
-    'super_admin' => ['dashboard.php', 'reports.php', 'saved_reports.php', 'users.php', 'grid.php', 'logout.php'],
+    'analyst'     => ['dashboard.php', 'reporting.php', 'saved_reports.php', 'logout.php'],
+    'super_admin' => ['dashboard.php', 'reporting.php', 'saved_reports.php', 'users.php', 'grid.php', 'logout.php'],
     default       => [],
 };
 
