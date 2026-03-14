@@ -72,6 +72,11 @@ try {
     </div>
 </nav>
 
+<noscript>
+    <div style="background:#422006;border:1px solid #d97706;color:#fcd34d;padding:0.75rem 1rem;border-radius:6px;font-size:0.875rem;max-width:1400px;margin:1rem auto;">
+        JavaScript is disabled. Some features may not work.
+    </div>
+</noscript>
 <div class="container">
     <h1>Raw Data Logs</h1>
     <p class="sub">Displaying all <?php echo count($logs); ?> collected analytics events.</p>
