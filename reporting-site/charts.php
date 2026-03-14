@@ -214,8 +214,16 @@ try {
         <a href="dashboard.php">Dashboard</a>
         <a href="grid.php">Data Grid</a>
         <a href="charts.php" style="color: var(--accent);">Reporting</a>
+        <a href="saved_reports.php">Saved Reports</a>
+        <?php if ($_SESSION['role'] === 'super_admin'): ?>
+            <a href="users.php">Users</a>
+        <?php endif; ?>
     </div>
-    <button class="btn-export" onclick="downloadPDF()">Download PDF Report</button>
+    <div class="nav-right" style="display:flex;align-items:center;gap:1rem;">
+        <span style="font-size:0.875rem;color:var(--muted);">Signed in as <strong style="color:var(--text);"><?php echo htmlspecialchars($username); ?></strong></span>
+        <a href="logout.php" style="color:#ef4444;text-decoration:none;font-size:0.875rem;font-weight:500;">Logout</a>
+        <button class="btn-export" onclick="downloadPDF()">Download PDF Report</button>
+    </div>
 </nav>
 
 <div class="container" id="printable-content">
