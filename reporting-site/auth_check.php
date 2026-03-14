@@ -10,31 +10,30 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 $current_page = basename($_SERVER['PHP_SELF']);
 $role = $_SESSION['role'] ?? 'guest';
 
-// 2. Role-Based Access Control (RBAC)
+if ($current_page === '403.php' || $current_page === '404.php') {
+    return; 
+}
+
+// 2. Viewer Lockdown
 if ($role === 'viewer') {
-    // Viewers are strictly locked to saved_reports.php
-    $allowed = ['saved_reports.php', 'logout.php'];
-    if (!in_array($current_page, $allowed)) {
-        header('HTTP/1.1 403 Forbidden');
-        include '403.php';
+    $viewer_allowed = ['saved_reports.php', 'logout.php'];
+    if (!in_array($current_page, $viewer_allowed)) {
+        header("Location: 403.php");
         exit;
     }
 } 
 
+// 3. Analyst Lockdown
 elseif ($role === 'analyst') {
-    // Analysts can access reports but NEVER the raw Data Grid
-    $forbidden = ['grid.php'];
-    if (in_array($current_page, $forbidden)) {
-        header('HTTP/1.1 403 Forbidden');
-        include '403.php';
+    if ($current_page === 'grid.php') {
+        header("Location: 403.php");
         exit;
     }
 }
 
-// 3. Admin Check for Grid
+// 4. Admin Check for Grid
 if ($current_page === 'grid.php' && $role !== 'super_admin') {
-    header('HTTP/1.1 403 Forbidden');
-    include '403.php';
+    header("Location: 403.php");
     exit;
 }
 ?>
