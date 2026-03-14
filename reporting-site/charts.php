@@ -3,7 +3,7 @@
 include 'auth_check.php'; 
 
 // Extract permissions from the JSON array in your database
-$permissions = $_SESSION['permissions'] ?? [];
+$permissions = $_SESSION['allowed_sections'] ?? [];
 $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
 $username = $_SESSION['username'] ?? 'User';
 
@@ -32,7 +32,7 @@ try {
 
     // --- Category 3: Performance Data (Database key: 'performance') ---
     // Filtering by payload content since 'type' is nested in the JSON
-    $perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%\"type\":\"performance\"%' LIMIT 100");
+    $perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%\"event_type\":\"performance\"%' LIMIT 100");
     $loadTimes = [];
 
     foreach ($perfStmt as $row) {
