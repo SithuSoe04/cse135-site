@@ -4,5 +4,5 @@ RewriteEngine On
 RewriteRule ^api/(.*)$ reporting.php/$1 [L,QSA]
 
 # Custom error pages
-ErrorDocument 403 /reporting-site/403.php
-ErrorDocument 404 /reporting-site/404.php
+ErrorDocument 403 /403.php
+ErrorDocument 404 /404.php
