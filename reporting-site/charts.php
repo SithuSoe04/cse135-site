@@ -85,12 +85,16 @@ try {
     <meta charset="UTF-8">
     <title>Executive Analytics Report | CSE 135</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Preconnect + load Inter from Google Fonts so it renders consistently on every device -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">
     <!-- jsPDF + html2canvas for client-side PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text: #f1f5f9; --muted: #94a3b8; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; }
+        body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; }
         nav { background: var(--card); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
         nav a { color: var(--muted); text-decoration: none; margin-right: 25px; font-weight: 500; transition: 0.3s; }
         nav a:hover { color: var(--accent); }
@@ -323,8 +327,18 @@ try {
         try {
             const { jsPDF } = window.jspdf;
 
+            // Wait for all fonts (including Inter from Google Fonts) to finish
+            // loading before capturing. Without this, devices that don't have
+            // Inter installed locally may rasterize with a fallback font,
+            // causing letter-spacing differences across devices.
+            await document.fonts.ready;
+
             const content = document.getElementById('printable-content');
 
+            // Capture only the #printable-content div — not the full page —
+            // so surrounding body whitespace is excluded entirely.
+            // windowWidth matches the content's rendered width so nothing gets
+            // clipped or re-reflowed during capture.
             const canvas = await html2canvas(content, {
                 scale: 1.5,
                 useCORS: true,
@@ -337,6 +351,7 @@ try {
                 y: 0
             });
 
+            // JPEG at 0.82 quality is ~60-75% smaller than PNG with no visible difference.
             const imgData   = canvas.toDataURL('image/jpeg', 0.82);
             const imgWidth  = canvas.width;
             const imgHeight = canvas.height;
