@@ -33,26 +33,27 @@ try {
     // --- Category 3: Performance Data ---
     // Querying based on the "type":"performance" string inside your JSON payload
     $perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%\"type\":\"performance\"%' LIMIT 100");
-    $loadTimes = [];
+$loadTimes = [];
 
-    foreach ($perfStmt as $row) {
-        $p = json_decode($row['payload'], true);
-        // Exact path from your data: data -> raw -> domComplete
-        $t = $p['data']['raw'] ?? null;
-        if ($t && isset($t['domComplete'])) {
-            $val = (float)$t['domComplete'];
-            if ($val > 0) {
-                $loadTimes[] = $val;
-            }
+foreach ($perfStmt as $row) {
+    $p = json_decode($row['payload'], true);
+    
+    // Exact path from your samples: data -> raw -> domComplete
+    if (isset($p['data']['raw']['domComplete'])) {
+        $val = (float)$p['data']['raw']['domComplete'];
+        // Only include non-zero values
+        if ($val > 0) {
+            $loadTimes[] = $val;
         }
     }
+}
 
-    // Calculate the mean performance metric
-    if (count($loadTimes) > 0) {
-        $avgLoad = round(array_sum($loadTimes) / count($loadTimes), 2);
-    } else {
-        $avgLoad = "No Metric Data";
-    }
+// Calculate the mean
+if (count($loadTimes) > 0) {
+    $avgLoad = round(array_sum($loadTimes) / count($loadTimes), 2);
+} else {
+    $avgLoad = "No Data Found"; 
+}
 
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
