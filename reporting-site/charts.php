@@ -248,8 +248,8 @@ try {
         <div class="chart-box"><canvas id="pageChart"></canvas></div>
         <div class="analyst-box">
             <span class="analyst-title">Analyst Strategic Insight</span>
-            <p>Traffic distribution indicates a <strong>low depth of navigation</strong> into sub-routes. While the index page captures 100% of the initial 'static' hits, behavioral logs show a significant drop-off before users reach conversion pages.</p>
-            <p><strong>Recommendation:</strong> Implement clearer Call-to-Action (CTA) buttons on the landing page to drive deeper funnel engagement.</p>
+            <p>Traffic peaks at /support.html and /contact.html, which currently exceed landing page engagement. This reveals a utility-heavy user base prioritized on support and inquiry rather than general browsing.</p>
+            <p><strong>Recommendation:</strong> Deploy a self-service knowledge base or FAQ on the support page to deflect high-volume manual inquiries and streamline user resolution.</p>
         </div>
     </div>
     <?php endif; ?>
