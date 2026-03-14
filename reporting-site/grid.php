@@ -53,6 +53,7 @@ try {
         .badge-performance { background: #3a2a10; color: #fbbf24; }
         .badge-static      { background: #1e3a5f; color: #60a5fa; }
     </style>
+    <noscript><style>.js-only { display: none; }</style></noscript>
 </head>
 <body>
 <nav>

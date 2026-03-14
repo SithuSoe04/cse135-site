@@ -5,6 +5,12 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit;
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    header('Allow: POST, OPTIONS');
+    exit;
+}
+
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 
