@@ -1,4 +1,16 @@
-<?php include 'auth_check.php'; ?>
+<?php
+include 'auth_check.php';
+$config = require __DIR__ . '/../../db_config.php';
+try {
+    $pdo = new PDO("mysql:host={$config['host']};dbname={$config['db']}", $config['user'], $config['pass']);
+    $totalLogs   = $pdo->query("SELECT COUNT(*) FROM logs")->fetchColumn();
+    $totalSessions = $pdo->query("SELECT COUNT(DISTINCT session_id) FROM logs")->fetchColumn();
+    $totalReports  = $pdo->query("SELECT COUNT(*) FROM reports")->fetchColumn();
+    $totalUsers    = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+} catch (PDOException $e) {
+    $totalLogs = $totalSessions = $totalReports = $totalUsers = '—';
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,22 +31,17 @@
         .container { max-width: 1000px; margin: 60px auto; padding: 0 20px; }
         .welcome { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
         .sub { color: var(--muted); margin-bottom: 2.5rem; }
-        .cards { display: flex; gap: 1.25rem; flex-wrap: wrap; }
-        .quick-card {
+        .stats { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+        .stat-card {
             background: var(--card);
             border: 1px solid #334155;
             border-radius: 10px;
-            padding: 1.5rem;
-            text-decoration: none;
-            color: var(--text);
+            padding: 1.5rem 2rem;
             flex: 1;
-            min-width: 180px;
-            transition: border-color 0.2s;
+            min-width: 160px;
         }
-        .quick-card:hover { border-color: var(--accent); }
-        .quick-card .icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
-        .quick-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
-        .quick-card p { font-size: 0.825rem; color: var(--muted); }
+        .stat-card .stat-num { font-size: 2.5rem; font-weight: 800; color: var(--accent); line-height: 1; }
+        .stat-card .stat-label { font-size: 0.825rem; color: var(--muted); margin-top: 0.4rem; }
         .badge-role {
             display: inline-block;
             padding: 0.2rem 0.6rem;
@@ -73,30 +80,26 @@
             <?php echo str_replace('_', ' ', $_SESSION['role']); ?>
         </span>
     </div>
-    <p class="sub">Select a section from the navigation to begin.</p>
+    <p class="sub">Here's a snapshot of your analytics platform.</p>
 
-    <div class="cards">
-        <a href="charts.php" class="quick-card">
-            <div class="icon">📊</div>
-            <h3>Reporting</h3>
-            <p>View analytics charts and export PDF reports.</p>
-        </a>
-        <a href="grid.php" class="quick-card">
-            <div class="icon">🗃️</div>
-            <h3>Data Grid</h3>
-            <p>Browse raw collected log data.</p>
-        </a>
-        <a href="saved_reports.php" class="quick-card">
-            <div class="icon">📋</div>
-            <h3>Saved Reports</h3>
-            <p>View analyst-authored saved reports.</p>
-        </a>
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-num"><?php echo number_format($totalLogs); ?></div>
+            <div class="stat-label">Total Log Events</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num"><?php echo number_format($totalSessions); ?></div>
+            <div class="stat-label">Unique Sessions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num"><?php echo number_format($totalReports); ?></div>
+            <div class="stat-label">Saved Reports</div>
+        </div>
         <?php if ($_SESSION['role'] === 'super_admin'): ?>
-        <a href="users.php" class="quick-card">
-            <div class="icon">👥</div>
-            <h3>User Management</h3>
-            <p>Add, remove, and configure user access.</p>
-        </a>
+        <div class="stat-card">
+            <div class="stat-num"><?php echo number_format($totalUsers); ?></div>
+            <div class="stat-label">Users</div>
+        </div>
         <?php endif; ?>
     </div>
 </div>

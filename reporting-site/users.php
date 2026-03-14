@@ -68,7 +68,7 @@ try {
     }
 
     // Fetch all users
-    $users = $pdo->query("SELECT id, username, role, allowed_sections, created_at FROM users ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $users = $pdo->query("SELECT id, username, role, allowed_sections FROM users ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
@@ -195,7 +195,6 @@ try {
                     <th>Username</th>
                     <th>Role</th>
                     <th>Allowed Sections</th>
-                    <th>Created</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -212,7 +211,6 @@ try {
                         else echo '<em>None</em>';
                         ?>
                     </td>
-                    <td><?php echo date('M j, Y', strtotime($u['created_at'])); ?></td>
                     <td>
                         <?php if ($u['id'] !== $_SESSION['user_id']): ?>
                         <form method="POST" action="users.php" style="display:inline"
