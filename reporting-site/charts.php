@@ -2,7 +2,6 @@
 // 1. Authorization & Security
 include 'auth_check.php'; 
 
-// Use the correct session key that matches your DB column name
 $sections = $_SESSION['allowed_sections'] ?? [];
 $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
 $isAnalyst = ($_SESSION['role'] === 'analyst');
@@ -62,13 +61,11 @@ try {
     $pageData = $pageStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // --- Category 3: Performance Data ---
-    // Querying based on the "type":"performance" string inside your JSON payload
     $perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%domComplete%' LIMIT 150");
     $loadTimes = [];
 
     foreach ($perfStmt as $row) {
         $p = json_decode($row['payload'], true);
-        // Correct nesting path: data -> raw -> domComplete
         $val = $p['data']['raw']['domComplete'] ?? null;
         
         if ($val !== null && (float)$val > 0) {
@@ -102,19 +99,14 @@ try {
         .analyst-title { color: var(--accent); font-weight: bold; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; display: block; margin-bottom: 10px; }
         .btn-export { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-export:hover { background: #2563eb; transform: translateY(-2px); }
+        .btn-export:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         h1 { font-size: 2.25rem; margin-bottom: 5px; }
         h2 { color: var(--accent); font-size: 1.5rem; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
         .stat-value { font-size: 3rem; font-weight: 800; color: #10b981; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--bg); border-radius: 8px; overflow: hidden; }
         th, td { text-align: left; padding: 12px 15px; border-bottom: 1px solid #334155; }
         th { background: #1e293b; color: var(--muted); font-size: 0.8rem; }
-        
-        @media print {
-            body { background: #0f172a !important; }
-            #printable-content { width: 100% !important; margin: 0 !important; }
-            .report-card { break-inside: avoid; }
-            .save-report-section { display: none; }
-        }
+
         .save-report-section {
             background: var(--card);
             border: 1px solid #334155;
@@ -141,6 +133,78 @@ try {
         .btn-save:hover { background: #059669; }
         .alert-success { background: #052e16; border: 1px solid #16a34a; color: #86efac; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; }
         .alert-error { background: #450a0a; border: 1px solid #dc2626; color: #fca5a5; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; }
+
+        /* ── PDF / print-friendly white theme ── */
+        body.pdf-mode {
+            background: #ffffff !important;
+            color: #111827 !important;
+        }
+        body.pdf-mode nav,
+        body.pdf-mode .save-report-section {
+            display: none !important;
+        }
+        body.pdf-mode .container {
+            margin-top: 0 !important;
+        }
+        body.pdf-mode .report-card {
+            background: #f9fafb !important;
+            border: 1px solid #e5e7eb !important;
+            box-shadow: none !important;
+        }
+        body.pdf-mode h1 {
+            color: #111827 !important;
+        }
+        body.pdf-mode h2 {
+            color: #1e3a5f !important;
+            border-bottom-color: #d1d5db !important;
+        }
+        body.pdf-mode p,
+        body.pdf-mode td,
+        body.pdf-mode li {
+            color: #374151 !important;
+        }
+        body.pdf-mode th {
+            background: #e5e7eb !important;
+            color: #4b5563 !important;
+        }
+        body.pdf-mode td {
+            border-bottom-color: #e5e7eb !important;
+        }
+        body.pdf-mode table {
+            background: #ffffff !important;
+        }
+        body.pdf-mode .analyst-box {
+            background: #eff6ff !important;
+            border-left: 5px solid #3b82f6 !important;
+        }
+        body.pdf-mode .analyst-title {
+            color: #1d4ed8 !important;
+        }
+        body.pdf-mode .analyst-box p {
+            color: #1e3a5f !important;
+        }
+        body.pdf-mode .analyst-box strong {
+            color: #111827 !important;
+        }
+        body.pdf-mode .stat-value {
+            color: #059669 !important;
+        }
+        body.pdf-mode code {
+            background: #e5e7eb !important;
+            color: #111827 !important;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        body.pdf-mode header p,
+        body.pdf-mode header p strong {
+            color: #6b7280 !important;
+        }
+
+        @media print {
+            body { background: #ffffff !important; color: #111827 !important; }
+            nav, .save-report-section { display: none !important; }
+            .report-card { break-inside: avoid; background: #f9fafb !important; border: 1px solid #e5e7eb !important; }
+        }
     </style>
 </head>
 <body>
@@ -249,26 +313,8 @@ try {
 </div>
 
 <script>
-    // High-Resolution PDF Export
-    function downloadPDF() {
-        const element = document.getElementById('printable-content');
-        const opt = {
-            margin:       10,
-            filename:     'Executive_Analytics_Report.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { 
-                scale: 3, 
-                backgroundColor: '#0f172a',
-                useCORS: true,
-                width: 1100 
-            },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save();
-    }
-
-    // Platform Chart (Doughnut)
-    new Chart(document.getElementById('platformChart'), {
+    // ── Chart instances (named so toDataURL() works at export time) ──
+    const platformChart = new Chart(document.getElementById('platformChart'), {
         type: 'doughnut',
         data: {
             labels: <?php echo json_encode(array_keys($platformCounts)); ?>,
@@ -284,8 +330,7 @@ try {
         }
     });
 
-    // Page Chart (Bar)
-    new Chart(document.getElementById('pageChart'), {
+    const pageChart = new Chart(document.getElementById('pageChart'), {
         type: 'bar',
         data: {
             labels: <?php echo json_encode(array_column($pageData, 'page_url')); ?>,
@@ -305,6 +350,56 @@ try {
             }
         }
     });
+
+    // ── PDF Export ──
+    function downloadPDF() {
+        const btn = document.querySelector('.btn-export');
+        btn.textContent = 'Generating…';
+        btn.disabled = true;
+
+        // Step 1: snapshot every Chart.js canvas into a static <img>
+        // so html2canvas captures the chart pixels reliably
+        const canvasSwaps = [];
+        document.querySelectorAll('canvas').forEach(canvas => {
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL('image/png');
+            img.style.width  = canvas.offsetWidth  + 'px';
+            img.style.height = canvas.offsetHeight + 'px';
+            img.style.display = 'block';
+            canvas.parentNode.insertBefore(img, canvas);
+            canvas.style.display = 'none';
+            canvasSwaps.push({ canvas, img });
+        });
+
+        // Step 2: switch to the print-friendly white theme
+        document.body.classList.add('pdf-mode');
+
+        const element = document.getElementById('printable-content');
+        const opt = {
+            margin:      [12, 12, 12, 12],
+            filename:    'Analytics_Report.pdf',
+            image:       { type: 'jpeg', quality: 0.97 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Step 3: restore dark theme and live canvases
+            document.body.classList.remove('pdf-mode');
+            canvasSwaps.forEach(({ canvas, img }) => {
+                canvas.style.display = '';
+                img.remove();
+            });
+            btn.textContent = 'Download PDF Report';
+            btn.disabled = false;
+        });
+    }
 </script>
 </body>
 </html>
