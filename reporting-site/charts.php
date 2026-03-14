@@ -2,8 +2,8 @@
 // 1. Authorization & Security
 include 'auth_check.php'; 
 
-// Extract permissions from the JSON array in your database
-$permissions = $_SESSION['permissions'] ?? [];
+// Use the correct session key that matches your DB column name
+$sections = $_SESSION['allowed_sections'] ?? []; 
 $isSuperAdmin = ($_SESSION['role'] === 'super_admin');
 $username = $_SESSION['username'] ?? 'User';
 
@@ -26,32 +26,33 @@ try {
         else $platformCounts['Other']++;
     }
 
-    // --- Category 2: Behavioral Data (Database key: 'behavioral') ---
+    // --- Category 2: Behavioral Data ---
     $pageStmt = $pdo->query("SELECT page_url, COUNT(*) as count FROM logs GROUP BY page_url");
     $pageData = $pageStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // --- Category 3: Performance Data (Final Sample-Based Fix) ---
-$perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%\"type\":\"performance\"%' LIMIT 100");
-$loadTimes = [];
+    // --- Category 3: Performance Data ---
+    // Querying based on the "type":"performance" string inside your JSON payload
+    $perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%\"type\":\"performance\"%' LIMIT 100");
+    $loadTimes = [];
 
-foreach ($perfStmt as $row) {
-    $p = json_decode($row['payload'], true);
-    
-    // Exact path from your sample: data -> raw -> domComplete
-    if (isset($p['data']['raw']['domComplete'])) {
-        $val = (float)$p['data']['raw']['domComplete'];
-        if ($val > 0) {
-            $loadTimes[] = $val;
+    foreach ($perfStmt as $row) {
+        $p = json_decode($row['payload'], true);
+        // Exact path from your data: data -> raw -> domComplete
+        $t = $p['data']['raw'] ?? null;
+        if ($t && isset($t['domComplete'])) {
+            $val = (float)$t['domComplete'];
+            if ($val > 0) {
+                $loadTimes[] = $val;
+            }
         }
     }
-}
 
-// Calculate the average
-if (count($loadTimes) > 0) {
-    $avgLoad = round(array_sum($loadTimes) / count($loadTimes), 2);
-} else {
-    $avgLoad = "No Metric Data"; // This shows if the keys don't match exactly
-}
+    // Calculate the mean performance metric
+    if (count($loadTimes) > 0) {
+        $avgLoad = round(array_sum($loadTimes) / count($loadTimes), 2);
+    } else {
+        $avgLoad = "No Metric Data";
+    }
 
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
@@ -86,6 +87,7 @@ if (count($loadTimes) > 0) {
         
         @media print {
             body { background: #0f172a !important; }
+            #printable-content { width: 100% !important; margin: 0 !important; }
             .report-card { break-inside: avoid; }
         }
     </style>
@@ -95,7 +97,7 @@ if (count($loadTimes) > 0) {
 <nav>
     <div class="nav-links">
         <a href="dashboard.php">Dashboard</a>
-        <a href="grid.php">Logs Grid</a>
+        <a href="grid.php">Data Grid</a>
         <a href="charts.php" style="color: var(--accent);">Reporting</a>
     </div>
     <button class="btn-export" onclick="downloadPDF()">Download PDF Report</button>
@@ -111,7 +113,7 @@ if (count($loadTimes) > 0) {
         </p>
     </header>
 
-    <?php if ($isSuperAdmin || in_array('static', $permissions)): ?>
+    <?php if ($isSuperAdmin || in_array('static', $sections)): ?>
     <div class="report-card">
         <h2>I. Audience Demographic Profile</h2>
         <div class="chart-box"><canvas id="platformChart"></canvas></div>
@@ -131,7 +133,7 @@ if (count($loadTimes) > 0) {
     </div>
     <?php endif; ?>
 
-    <?php if ($isSuperAdmin || in_array('behavioral', $permissions)): ?>
+    <?php if ($isSuperAdmin || in_array('behavioral', $sections)): ?>
     <div class="report-card">
         <h2>II. Content Engagement Trends</h2>
         <div class="chart-box"><canvas id="pageChart"></canvas></div>
@@ -143,7 +145,7 @@ if (count($loadTimes) > 0) {
     </div>
     <?php endif; ?>
 
-    <?php if ($isSuperAdmin || in_array('performance', $permissions)): ?>
+    <?php if ($isSuperAdmin || in_array('performance', $sections)): ?>
     <div class="report-card">
         <h2>III. Infrastructure Health Metrics</h2>
         <div class="stat-value"><?php echo $avgLoad; ?> <span style="font-size: 1.2rem; color: var(--muted); font-weight: normal;">ms</span></div>
@@ -158,7 +160,7 @@ if (count($loadTimes) > 0) {
 </div>
 
 <script>
-    // PRO PDF Export Settings
+    // High-Resolution PDF Export
     function downloadPDF() {
         const element = document.getElementById('printable-content');
         const opt = {
@@ -166,9 +168,10 @@ if (count($loadTimes) > 0) {
             filename:     'Executive_Analytics_Report.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
-                scale: 2, 
+                scale: 3, 
                 backgroundColor: '#0f172a',
-                useCORS: true 
+                useCORS: true,
+                width: 1100 
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
