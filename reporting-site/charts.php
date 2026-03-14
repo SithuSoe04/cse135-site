@@ -31,16 +31,23 @@ try {
     $pageData = $pageStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // --- Category 3: Performance Data (Database key: 'performance') ---
-    $perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%loadEventEnd%' LIMIT 50");
+    $perfStmt = $pdo->query("SELECT payload FROM logs WHERE type = 'performance' LIMIT 100");
     $loadTimes = [];
+
     foreach ($perfStmt as $row) {
         $p = json_decode($row['payload'], true);
+        // Looking into your specific "data" -> "raw" structure
         $t = $p['data']['raw'] ?? null;
-        if ($t && isset($t['loadEventEnd'], $t['navigationStart'])) {
-            $loadTimes[] = $t['loadEventEnd'] - $t['navigationStart'];
+        
+        if ($t) {
+            // Use domComplete since loadEventEnd is 0 in your logs
+            $val = $t['domComplete'] ?? $t['domInteractive'] ?? 0;
+            if ($val > 0) {
+                $loadTimes[] = $val;
+            }
         }
     }
-    $avgLoad = count($loadTimes) > 0 ? round(array_sum($loadTimes) / count($loadTimes), 2) : "N/A";
+    $avgLoad = count($loadTimes) > 0 ? round(array_sum($loadTimes) / count($loadTimes), 2) : "Calculated on load...";
 
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
