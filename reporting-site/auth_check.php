@@ -1,7 +1,9 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// 1. Unauthenticated Case
+// 1. Check authentication
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     header("Location: login.php");
     exit;
@@ -10,30 +12,40 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 $current_page = basename($_SERVER['PHP_SELF']);
 $role = $_SESSION['role'] ?? 'guest';
 
+// Prevent loops
 if ($current_page === '403.php' || $current_page === '404.php') {
-    return; 
+    return;
+}
+
+// Helper function for redirect
+function deny_access() {
+    $from = urlencode($_SERVER['REQUEST_URI']);
+    header("Location: 403.php?from=$from");
+    exit;
 }
 
 // 2. Viewer Lockdown
 if ($role === 'viewer') {
-    $viewer_allowed = ['saved_reports.php', 'logout.php'];
+
+    $viewer_allowed = [
+        'saved_reports.php',
+        'logout.php'
+    ];
+
     if (!in_array($current_page, $viewer_allowed)) {
-        header("Location: 403.php");
-        exit;
+        deny_access();
     }
-} 
+}
 
 // 3. Analyst Lockdown
 elseif ($role === 'analyst') {
+
     if ($current_page === 'grid.php') {
-        header("Location: 403.php");
-        exit;
+        deny_access();
     }
 }
 
-// 4. Admin Check for Grid
+// 4. Super Admin only page
 if ($current_page === 'grid.php' && $role !== 'super_admin') {
-    header("Location: 403.php");
-    exit;
+    deny_access();
 }
-?>
