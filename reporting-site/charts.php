@@ -30,23 +30,28 @@ try {
     $pageStmt = $pdo->query("SELECT page_url, COUNT(*) as count FROM logs GROUP BY page_url");
     $pageData = $pageStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // --- Category 3: Performance Data (Database key: 'performance') ---
-    // Filtering by payload content since 'type' is nested in the JSON
-    $perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%\"type\":\"performance\"%' LIMIT 100");
-    $loadTimes = [];
+    // --- Category 3: Performance Data (Final Sample-Based Fix) ---
+$perfStmt = $pdo->query("SELECT payload FROM logs WHERE payload LIKE '%\"type\":\"performance\"%' LIMIT 100");
+$loadTimes = [];
 
-    foreach ($perfStmt as $row) {
-        $p = json_decode($row['payload'], true);
-        $t = $p['data']['raw'] ?? null;
-        if ($t) {
-            // Use domComplete based on your log structure
-            $val = $t['domComplete'] ?? $t['domInteractive'] ?? 0;
-            if ($val > 0) {
-                $loadTimes[] = $val;
-            }
+foreach ($perfStmt as $row) {
+    $p = json_decode($row['payload'], true);
+    
+    // Exact path from your sample: data -> raw -> domComplete
+    if (isset($p['data']['raw']['domComplete'])) {
+        $val = (float)$p['data']['raw']['domComplete'];
+        if ($val > 0) {
+            $loadTimes[] = $val;
         }
     }
-    $avgLoad = count($loadTimes) > 0 ? round(array_sum($loadTimes) / count($loadTimes), 2) : "Calculating...";
+}
+
+// Calculate the average
+if (count($loadTimes) > 0) {
+    $avgLoad = round(array_sum($loadTimes) / count($loadTimes), 2);
+} else {
+    $avgLoad = "No Metric Data"; // This shows if the keys don't match exactly
+}
 
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
