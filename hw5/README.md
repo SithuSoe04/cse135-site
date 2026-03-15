@@ -36,7 +36,7 @@ A full-stack web analytics platform. A JavaScript snippet embedded on the tracke
 - `reports` — analyst-saved reports (title, section, analyst_comment, created_by FK, created_at)
 
 ## Use of AI
-We used Claude as a coding assistant throughout this project, including debugging PHP auth logic, fixing SQL queries, building consistent UI components, and configurnig Apache. It was useful for moving quickly and catching bugs, though it occasionally needed correction based on the actual server environment. Overall it was a net positive for productivity, but understanding the code it produces is still necessary.
+We used Gemini and Claude as a coding assistant throughout this project, including debugging PHP auth logic, fixing SQL queries, building consistent UI components, and configuring Apache. It was useful for moving quickly and catching bugs, though it occasionally needed correction, specifically regarding the handling of $_SERVER variables in our specific Apache environment. Overall, it was a net positive for productivity, but understanding the code it produces is still necessary.
 
 ## Roadmap (Future Work)
 - Email delivery of saved reports

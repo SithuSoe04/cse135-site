@@ -44,7 +44,7 @@ Visit `https://collector.cse135phyosithu.site/log.php` directly in the browser (
 
 ## Known Bugs and Concerns
 
-- **PDF export — "Save a Report" form appears on page 1 of the PDF.** The html2canvas capture includes the save form since it is inside `#printable-content`. This results in the form appearing before the charts in the exported PDF.
+- **PDF export — "Save a Report" form appears on page 1 of the PDF.** The html2canvas capture includes the save form since it is inside `#printable-content`. As such, the form is currently part of the DOM tree inside the printable container. In a future iteration, I would apply a .no-print CSS class and configure html2canvas to ignore that class during the capture process..
 
 - **Section access enforcement is UI-only on charts.php.** The PHP checks `$_SESSION['allowed_sections']` to conditionally render sections, which is correct. However, the raw SQL queries for all sections still run on the server regardless — only the output is gated. This is not a security issue (data is not exposed) but is slightly inefficient.
 
