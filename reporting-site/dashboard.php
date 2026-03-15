@@ -61,7 +61,9 @@ try {
 <nav>
     <div class="nav-links">
         <a href="dashboard.php" style="color: var(--accent);">Dashboard</a>
-        <a href="grid.php">Data Grid</a>
+        <?php if ($_SESSION['role'] !== 'analyst'): ?>
+            <a href="grid.php">Data Grid</a>
+        <?php endif; ?>
         <a href="charts.php">Reporting</a>
         <a href="saved_reports.php">Saved Reports</a>
         <?php if ($_SESSION['role'] === 'super_admin'): ?>

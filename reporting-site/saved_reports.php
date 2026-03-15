@@ -115,7 +115,9 @@ $username = $_SESSION['username'];
     <div class="nav-links">
         <?php if ($role !== 'viewer'): ?>
             <a href="dashboard.php">Dashboard</a>
-            <a href="grid.php">Data Grid</a>
+            <?php if ($role !== 'analyst'): ?>
+                <a href="grid.php">Data Grid</a>
+            <?php endif; ?>
             <a href="charts.php">Reporting</a>
         <?php endif; ?>
         <a href="saved_reports.php" style="color: var(--accent);">Saved Reports</a>
