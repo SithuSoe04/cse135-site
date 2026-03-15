@@ -1,2 +1,5 @@
 RewriteEngine On
 RewriteRule ^log$ log.php [L]
+
+Options -Indexes
+ErrorDocument 403 "Access Denied"
