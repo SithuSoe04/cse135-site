@@ -15,7 +15,7 @@
 ## Grader Walkthrough Scenario
 
 **Step 1 — View as a Viewer**
-Go to https://reporting.cse135phyosithu.site/login.php. Log in as `bob` / `viewerPassword789`. You will be redirected to Saved Reports automatically. Verify that attempting to navigate to `/dashboard.php` or `/charts.php` shows a 403 page.
+Go to https://reporting.cse135phyosithu.site/. Log in as `bob` / `viewerPassword789`. You will be redirected to Saved Reports automatically. Verify that attempting to navigate to `/dashboard.php` or `/charts.php` shows a 403 page.
 
 **Step 2 — Log in as a restricted Analyst**
 Log out, then log in as `sam` / `samPass123`. Navigate to Reporting (`charts.php`). You should only see the Performance section (Infrastructure Health Metrics). The Demographic and Behavioral sections should not be visible.
