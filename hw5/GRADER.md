@@ -15,7 +15,7 @@
 ## Grader Walkthrough Scenario
 
 **Step 1 — View as a Viewer**
-Log in as `bob` / `viewerPassword789`. You will be redirected to Saved Reports automatically. Verify that attempting to navigate to `/dashboard.php` or `/charts.php` shows a 403 page.
+Go to https://reporting.cse135phyosithu.site/login.php. Log in as `bob` / `viewerPassword789`. You will be redirected to Saved Reports automatically. Verify that attempting to navigate to `/dashboard.php` or `/charts.php` shows a 403 page.
 
 **Step 2 — Log in as a restricted Analyst**
 Log out, then log in as `sam` / `samPass123`. Navigate to Reporting (`charts.php`). You should only see the Performance section (Infrastructure Health Metrics). The Demographic and Behavioral sections should not be visible.
@@ -49,3 +49,5 @@ Visit `https://collector.cse135phyosithu.site/log.php` directly in the browser (
 - **Section access enforcement is UI-only on charts.php.** The PHP checks `$_SESSION['allowed_sections']` to conditionally render sections, which is correct. However, the raw SQL queries for all sections still run on the server regardless — only the output is gated. This is not a security issue (data is not exposed) but is slightly inefficient.
 
 - **No CSRF protection on forms.** The save report form and user management forms use plain POST without CSRF tokens. For a production system this would need to be addressed.
+
+- **Lack of Report Lifecycle Management (CRUD).** Currently, the system only supports the "Create" and "Read" operations for Analyst reports. There is no administrative interface to update or delete reports once they are committed to the database. A future iteration would include a DELETE endpoint restricted to super_admin users or the original author to maintain the integrity and relevance of the Saved Reports feed.
